@@ -25,6 +25,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+		log.info("OAuth2User.class 실행 : {}", userRequest);
 		OAuth2User oAuth2User = super.loadUser(userRequest);
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 

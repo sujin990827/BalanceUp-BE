@@ -30,14 +30,15 @@ spring:
             scope:
               - email
               - profile
+            redirect-uri: http://localhost:8080/oauth2/authorization/google
 
           kakao:
-            client-id: tySQhCLzOkvNuHkN8KfcPiAApR1WMK80
-            client-secret: 66323ceffc6f43bec404a2f2addbd415
+            client-id: 66323ceffc6f43bec404a2f2addbd415
+            client-secret:
             scope:
               - profile_nickname
               - account_email
-            redirect-uri: http://localhost:8080/login/callback
+            redirect-uri: http://localhost:8080/oauth2/authorization/kakao
             authorization-grant-type: authorization_code
             client-name: kakao
             client-authentication-method: POST
@@ -48,9 +49,9 @@ spring:
             scope:
               - name
               - email
-            client-name: Naver
+            client-name: naver
             authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8080/login/callback
+            redirect-uri: http://localhost:8080/oauth2/authorization/naver
 
         provider:
           kakao:

@@ -8,10 +8,12 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import com.balanceup.keum.config.oauth.PrincipalOauth2UserService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
+@Slf4j
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private final PrincipalOauth2UserService principalOauth2UserService;
@@ -20,13 +22,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http
 			.csrf().disable()
-			.oauth2Login()
-			.loginPage("")
-			.userInfoEndpoint()
-			.userService(principalOauth2UserService)
+			.authorizeRequests().anyRequest().permitAll()
 			.and()
-			.defaultSuccessUrl("/loginSuccess")
-			.failureUrl("/loginFailure");
+			.logout()
+			.logoutSuccessUrl("/")
+			.and()
+			.oauth2Login()
+			.userInfoEndpoint()
+			.userService(principalOauth2UserService);
 	}
 
 }
