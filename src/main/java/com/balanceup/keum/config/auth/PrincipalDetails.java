@@ -2,10 +2,10 @@ package com.balanceup.keum.config.auth;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -33,8 +33,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		Collection<GrantedAuthority> collections = new ArrayList<>();
-		List<String> roleList = List.of("ROLE_USER", "ROLE_ADMIN");
-		collections.add((GrantedAuthority)roleList);
+		collections.add(new SimpleGrantedAuthority("ROLE_USER"));
 		return collections;
 	}
 
