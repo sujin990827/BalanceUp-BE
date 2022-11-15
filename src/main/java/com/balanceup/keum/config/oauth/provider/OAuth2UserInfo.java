@@ -1,4 +1,4 @@
-package com.balanceup.keum.config.oauth;
+package com.balanceup.keum.config.oauth.provider;
 
 public interface OAuth2UserInfo {
 
@@ -7,7 +7,4 @@ public interface OAuth2UserInfo {
 	String getProvider();
 
 	String getEmail();
-
-	String getName();
-
 }
