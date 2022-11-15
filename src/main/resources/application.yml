@@ -30,7 +30,7 @@ spring:
             scope:
               - email
               - profile
-            redirect-uri: http://localhost:8080/oauth2/authorization/google
+            redirect-uri: http://localhost:8080/login/oauth2/code/google
 
           kakao:
             client-id: 66323ceffc6f43bec404a2f2addbd415
@@ -38,7 +38,7 @@ spring:
             scope:
               - profile_nickname
               - account_email
-            redirect-uri: http://localhost:8080/oauth2/authorization/kakao
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
             client-name: kakao
             client-authentication-method: POST
