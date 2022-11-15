@@ -1,6 +1,5 @@
 package com.balanceup.keum.config.oauth;
 
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -10,6 +9,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.balanceup.keum.config.auth.PrincipalDetails;
+import com.balanceup.keum.config.oauth.provider.GoogleUserInfo;
+import com.balanceup.keum.config.oauth.provider.KakaoUserInfo;
+import com.balanceup.keum.config.oauth.provider.OAuth2UserInfo;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.UserRepository;
 
@@ -29,15 +31,13 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 		OAuth2User oAuth2User = super.loadUser(userRequest);
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
-		OAuth2UserInfo oAuth2UserInfo = null;
+		OAuth2UserInfo oAuth2UserInfo;
 		if (registrationId.equals("google")) {
 			oAuth2UserInfo = new GoogleUserInfo(oAuth2User.getAttributes());
 		} else if (registrationId.equals("kakao")) {
 			oAuth2UserInfo = new KakaoUserInfo(oAuth2User.getAttributes());
-		} else if (registrationId.equals("naver")) {
-			oAuth2UserInfo = new NaverUserInfo((Map)oAuth2User.getAttributes().get("response"));
 		} else {
-			log.error("We supported google, facebook and naver");
+			log.error("We supported google and kakao");
 			throw new OAuth2AuthenticationException("지원하지 않는 OAuth");
 		}
 
