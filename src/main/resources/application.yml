@@ -50,6 +50,10 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
+jwt:
+  secret-key: keum.2022.tlswornjs.dlatnwls.server.key.v0.01
+  # 30 days
+  token.expired-time-ms: 2592000000
 
 logging:
   level:
