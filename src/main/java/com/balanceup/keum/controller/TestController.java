@@ -11,5 +11,10 @@ public class TestController {
 		return "index";
 	}
 
+	@GetMapping({"/loginSuccess"})
+	public String login() {
+		return "loginSuccess";
+	}
+
 
 }
