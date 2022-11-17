@@ -58,8 +58,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
 		log.info("jwtToken 생성 {}",jwtToken);
 
-		getRedirectStrategy().sendRedirect(request, response, "/");
-		// response.sendRedirect("/loginSuccess");
+		getRedirectStrategy().sendRedirect(request, response, "/loginSuccess?token="+jwtToken);
 
 		//TODO :
 		// 1. JWT 토큰 발급 후 리다이렉트
