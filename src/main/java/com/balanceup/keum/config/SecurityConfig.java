@@ -35,31 +35,29 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-				.csrf().disable()
-				.authorizeRequests()
-				.antMatchers("/user/**").authenticated()
-				.anyRequest().permitAll()
+			.csrf().disable()
+			.authorizeRequests()
+			.antMatchers("/user/**").authenticated()
+			.anyRequest().permitAll()
 			.and()
-				.sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			.sessionManagement()
+			.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
-				.logout()
-				.logoutSuccessUrl("/")
+			.logout()
+			.logoutSuccessUrl("/")
 			.and()
-				.addFilterBefore(new JwtFilter(key, principalDetailService), UsernamePasswordAuthenticationFilter.class)
-				.exceptionHandling()
-				.authenticationEntryPoint(new CustomEntryPoint())
-				.accessDeniedHandler(customAccessDeniedHandler)
+			.addFilterBefore(new JwtFilter(key, principalDetailService), UsernamePasswordAuthenticationFilter.class)
+			.exceptionHandling()
+			.authenticationEntryPoint(new CustomEntryPoint())
+			.accessDeniedHandler(customAccessDeniedHandler)
 			.and()
-				.oauth2Login()
-				.userInfoEndpoint()
-				.userService(principalOauth2UserService)
+			.oauth2Login()
+			.userInfoEndpoint()
+			.userService(principalOauth2UserService)
 			.and()
-				.successHandler(oAuth2AuthenticationSuccessHandler).permitAll()
+			.successHandler(oAuth2AuthenticationSuccessHandler).permitAll()
 
 		;
 	}
-
-
 
 }

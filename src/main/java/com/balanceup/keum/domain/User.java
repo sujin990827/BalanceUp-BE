@@ -53,6 +53,11 @@ public class User {
 	@Column(name = "deleted_at")
 	private Timestamp deletedAt;
 
+	public User updateUserNickname(String nickname) {
+		this.nickname = nickname;
+		return this;
+	}
+
 	public static User of(String username, String password, String provider) {
 		return new User(username, password, provider);
 	}
