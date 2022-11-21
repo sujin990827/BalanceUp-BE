@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.balanceup.keum.controller.request.DuplicateNicknameRequest;
 import com.balanceup.keum.controller.request.UpdateNicknameRequest;
 import com.balanceup.keum.service.UserService;
 
@@ -19,8 +20,8 @@ public class UserController {
 	private final UserService userService;
 
 	@PostMapping("/user/nickname")
-	public ResponseEntity<?> duplicateNickname(@RequestBody String nickname) {
-		return new ResponseEntity<>(userService.duplicateNickname(nickname), HttpStatus.OK);
+	public ResponseEntity<?> duplicateNickname(@RequestBody DuplicateNicknameRequest dto) {
+		return new ResponseEntity<>(userService.duplicateNickname(dto), HttpStatus.OK);
 	}
 
 	@PutMapping("/user/nickname")

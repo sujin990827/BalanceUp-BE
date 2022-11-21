@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import com.balanceup.keum.config.util.JwtTokenUtil;
+import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 		}
 		clearAuthenticationAttributes(request);
 		if (authentication.getPrincipal() == null) {
-			log.info("null");
+			log.info("권한이 없습니다");
 			return;
 		}
 		String username = authentication.getName();
@@ -53,17 +54,17 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
 		log.info("jwtToken 생성 {}", jwtToken);
 
-		if (userRepository.findByUsername(username).isEmpty()) {
-			//TODO : 닉네임 입력 URI
+		User user = userRepository.findByUsername(username)
+			.orElseThrow(() -> new IllegalStateException("OAuth 로그인 정보가 정확하지 않습니다."));
+
+		if (!user.existNickname()) {
+			//TODO : redirect 닉네임 입력 URI
 			getRedirectStrategy().sendRedirect(request, response, "/loginSuccess?token=" + jwtToken);
+			return;
 		}
-		//TODO : 이미 회원가입 후 다음 URI
+		//TODO : redirect 이미 회원가입 후 다음 URI
 		getRedirectStrategy().sendRedirect(request, response, "/loginSuccess?token=" + jwtToken);
 
-		//TODO :
-		// 3. 회원정보 입력 페이지에서 닉네임을 입력 후 Access Token과 함께 제출
-		// 4. Access Token을 이용해 이미 가입된 소셜 유저 DB 조회
-		// 5. 추가정보들 업데이트 및  추가
 	}
 
 }

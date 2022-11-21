@@ -36,7 +36,7 @@ public class User {
 	@Column(length = 50, nullable = false, unique = true)
 	private String username;
 
-	@Column(length = 50, nullable = false)
+	@Column(length = 100, nullable = false)
 	private String password;
 
 	@Column(length = 20, unique = true)
@@ -68,6 +68,10 @@ public class User {
 		this.provider = provider;
 	}
 
+	public boolean existNickname() {
+		return this.nickname != null;
+	}
+
 	@PrePersist
 	private void createdAt() {
 		this.createAt = Timestamp.from(Instant.now());
@@ -78,4 +82,7 @@ public class User {
 		this.modifiedAt = Timestamp.from(Instant.now());
 	}
 
+	public void updateProvider(String provider) {
+		this.provider += "," + provider;
+	}
 }

@@ -2,6 +2,7 @@ package com.balanceup.keum.config.oauth;
 
 import java.util.Optional;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
 	private final UserRepository userRepository;
+	private final BCryptPasswordEncoder encoder;
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -42,7 +44,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 		}
 
 		String provider = oAuth2UserInfo.getProvider();
-		String password = oAuth2UserInfo.getProviderId();
+		String password = encoder.encode(oAuth2UserInfo.getProviderId());
 		String username = oAuth2UserInfo.getEmail();
 
 		Optional<User> userEntity = userRepository.findByUsername(username);
@@ -53,6 +55,10 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 			log.info("Oauth Join {}", user);
 		} else {
 			user = userEntity.get();
+			String userProvider = user.getProvider();
+			if (!userProvider.contains(provider)) {
+				user.updateProvider(userProvider);
+			}
 			log.info("이미 OAuth 로그인을 한적이 있습니다. 자동회원가입 대상입니다.");
 		}
 

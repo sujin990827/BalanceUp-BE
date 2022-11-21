@@ -32,6 +32,9 @@ public class JwtFilter extends OncePerRequestFilter {
 		FilterChain filterChain) throws ServletException, IOException {
 
 		final String header = response.getHeader(HttpHeaders.AUTHORIZATION);
+		if (header == null) {
+			log.info("head is null");
+		}
 
 		if (header == null || !header.startsWith("Bearer ")) {
 			log.error("Error occurs while getting header, header is invalid");

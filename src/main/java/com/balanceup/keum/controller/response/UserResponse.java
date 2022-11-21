@@ -3,7 +3,9 @@ package com.balanceup.keum.controller.response;
 import com.balanceup.keum.domain.User;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
+@Data
 @AllArgsConstructor
 public class UserResponse {
 

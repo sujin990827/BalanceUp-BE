@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class UpdateNicknameRequest {
+public class DuplicateNicknameRequest {
 
-	String username;
 	String nickname;
-	String token;
-
 }
