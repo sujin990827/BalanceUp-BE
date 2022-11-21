@@ -18,7 +18,7 @@ public class UserController {
 
 	private final UserService userService;
 
-	@PostMapping("/user/nickname/duplicate")
+	@PostMapping("/user/nickname")
 	public ResponseEntity<?> duplicateNickname(@RequestBody String nickname) {
 		return new ResponseEntity<>(userService.duplicateNickname(nickname), HttpStatus.OK);
 	}
