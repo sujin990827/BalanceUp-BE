@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.balanceup.keum.controller.request.DuplicateNicknameRequest;
 import com.balanceup.keum.controller.request.UpdateNicknameRequest;
+import com.balanceup.keum.controller.response.Response;
 import com.balanceup.keum.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,12 +22,16 @@ public class UserController {
 
 	@PostMapping("/user/nickname")
 	public ResponseEntity<?> duplicateNickname(@RequestBody DuplicateNicknameRequest dto) {
-		return new ResponseEntity<>(userService.duplicateNickname(dto), HttpStatus.OK);
+		return new ResponseEntity<>(getSuccessResponse("닉네임 중복 확인 성공", userService.duplicateNickname(dto)), HttpStatus.OK);
 	}
 
 	@PutMapping("/user/nickname")
 	public ResponseEntity<?> updateNickname(@RequestBody UpdateNicknameRequest dto) {
-		return new ResponseEntity<>(userService.updateNickname(dto), HttpStatus.OK);
+		return new ResponseEntity<>(getSuccessResponse("닉네임 업데이트 성공", userService.updateNickname(dto)), HttpStatus.OK);
+	}
+
+	private static Response<Object> getSuccessResponse(String message, Object body) {
+		return Response.of("success", message, body);
 	}
 
 }
