@@ -11,6 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.stereotype.Component;
 
 import com.balanceup.keum.config.util.JwtTokenUtil;
@@ -47,24 +49,27 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 			return;
 		}
 		String username = authentication.getName();
-		String jwtToken = JwtTokenUtil.generateToken(username, secretKey, expiredTimeMS);
+		// String jwtToken = JwtTokenUtil.generateToken(username, secretKey, expiredTimeMS);
 
-		response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-		response.addHeader(HttpHeaders.AUTHORIZATION, jwtToken);
 
-		log.info("jwtToken 생성 {}", jwtToken);
+		// response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+		// response.addHeader(HttpHeaders.AUTHORIZATION, jwtToken);
+		//
+		// log.info("jwtToken 생성 {}", jwtToken);
 
+/*
 		User user = userRepository.findByUsername(username)
 			.orElseThrow(() -> new IllegalStateException("OAuth 로그인 정보가 정확하지 않습니다."));
+*/
 
-		if (!user.existNickname()) {
+	/*	if (!user.existNickname()) {
 			//TODO : redirect 닉네임 입력 URI
 			getRedirectStrategy().sendRedirect(request, response, "/loginSuccess?token=" + jwtToken);
 			return;
 		}
 		//TODO : redirect 이미 회원가입 후 다음 URI
 		getRedirectStrategy().sendRedirect(request, response, "/loginSuccess?token=" + jwtToken);
-
+*/
 	}
 
 }

@@ -36,9 +36,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http
 			.csrf().disable()
-			.authorizeRequests()
-			.antMatchers("/user/").authenticated()
-			.antMatchers("/user/nickname").permitAll()
+			 .authorizeRequests()
+			 .antMatchers("/admin/**").authenticated()
 			.anyRequest().permitAll()
 			.and()
 			.sessionManagement()
@@ -47,16 +46,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.logout()
 			.logoutSuccessUrl("/")
 			.and()
-			.addFilterBefore(new JwtFilter(key, principalDetailService), UsernamePasswordAuthenticationFilter.class)
+			// .addFilterBefore(new JwtFilter(key, principalDetailService), UsernamePasswordAuthenticationFilter.class)
 			.exceptionHandling()
 			.authenticationEntryPoint(new CustomEntryPoint())
 			.accessDeniedHandler(customAccessDeniedHandler)
 			.and()
-			.oauth2Login()
-			.userInfoEndpoint()
-			.userService(principalOauth2UserService)
-			.and()
-			.successHandler(oAuth2AuthenticationSuccessHandler).permitAll()
+			// .oauth2Login()
+			// .userInfoEndpoint()
+			// .userService(principalOauth2UserService)
+/*			.and()
+			.successHandler(oAuth2AuthenticationSuccessHandler)*/
 
 		;
 	}
