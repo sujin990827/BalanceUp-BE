@@ -34,11 +34,11 @@ spring:
 
           kakao:
             client-id: 66323ceffc6f43bec404a2f2addbd415
-            client-secret:
+            client-secret: tySQhCLz0kvNuHkN8KfcPiAApR1WMK80
             scope:
               - profile_nickname
               - account_email
-            redirect-uri: http://localhost:8080/login
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
             client-name: kakao
             client-authentication-method: POST
