@@ -58,13 +58,14 @@ public class User {
 		return this;
 	}
 
-	public static User of(String username, String password, String provider) {
-		return new User(username, password, provider);
+	public static User of(String username, String password, String nickname,String provider) {
+		return new User(username, password, nickname, provider);
 	}
 
-	private User(String username, String password, String provider) {
+	private User(String username, String password,String nickname, String provider) {
 		this.username = username;
 		this.password = password;
+		this.nickname = nickname;
 		this.provider = provider;
 	}
 

@@ -28,7 +28,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 	private final UserRepository userRepository;
 	private final BCryptPasswordEncoder encoder;
 
-	@Override
+/*	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		log.info("OAuth2User.class 실행 : {}", userRequest);
 		OAuth2User oAuth2User = super.loadUser(userRequest);
@@ -65,6 +65,6 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 		}
 
 		return new PrincipalDetails(user, oAuth2User.getAttributes());
-	}
+	}*/
 
 }
