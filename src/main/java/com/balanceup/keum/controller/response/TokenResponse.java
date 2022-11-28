@@ -13,7 +13,8 @@ public class TokenResponse {
 	String refreshToken;
 
 	public TokenResponse(Map<String, String> tokens) {
-		this.token = tokens.get("token");
-		this.refreshToken = tokens.get("refresh_token");
+		this.token = tokens.get("accessToken");
+		this.refreshToken = tokens.get("refreshToken");
 	}
+
 }

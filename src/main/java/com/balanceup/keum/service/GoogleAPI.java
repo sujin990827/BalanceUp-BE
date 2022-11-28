@@ -1,38 +1,39 @@
 package com.balanceup.keum.service;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.balanceup.keum.config.util.JwtTokenUtil;
+import com.balanceup.keum.controller.response.TokenResponse;
 import com.balanceup.keum.domain.User;
+import com.balanceup.keum.repository.RedisRepository;
 import com.balanceup.keum.repository.UserRepository;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class GoogleAPI {
 
-	@Value("${jwt.secret-key}")
-	private String secretKey;
-
-	@Value("${jwt.token.expired-time-ms}")
-	private Long expiredTimeMS;
-
 	private final String PROVIDER_GOOGLE = "google";
 	private final String TOKEN_URL = "https://oauth2.googleapis.com/token";
-	private final String USER_INFO_URI = "https://www.googleapis.com/drive/v2/files";
+	private final String USER_INFO_URI = "https://www.googleapis.com/oauth2/v1/userinfo";
 	//TODO : CLIENT_ID yml 파일에 넣기
 	private final String CLIENT_ID = "915621246164-v0qg2t6ptjk6jlj6g6hggvmnnh8ul1nd.apps.googleusercontent.com";
 	private final String CLIENT_SECRET = "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";
@@ -40,6 +41,9 @@ public class GoogleAPI {
 	private final String GRANT_TYPE = "authorization_code";
 
 	private final UserRepository userRepository;
+	private final JwtTokenUtil jwtTokenUtil;
+	private final RedisRepository redisRepository;
+	private final BCryptPasswordEncoder encoder;
 
 	public String getAccessToken(String authorize_code) {
 		ResponseEntity<String> response = getGoogleTokenResponse(authorize_code);
@@ -47,20 +51,19 @@ public class GoogleAPI {
 	}
 
 	public Map<String, String> getUserInfo(String accessToken) {
-		ResponseEntity<String> response = getResponseByAccessToken(accessToken);
+		JsonElement element = getElementByResponseBody(getResponseByAccessToken(accessToken));
 
-		JsonElement element = getElementByResponseBody(response);
-		String password = element.getAsJsonObject().get("sub").getAsString();
+		String password = element.getAsJsonObject().get("id").getAsString();
 		String username = element.getAsJsonObject().get("email").getAsString();
-		//TODO : 임시 DB에 username + password 저장
+
+		redisRepository.setValues(username, password, Duration.ofMillis(60 * 1000));
 
 		return getHeaderUserInfo(username);
 	}
 
 	public Map<String, String> join(String username, String nickname) {
-		//TODO : username을 통해 임시 DB에 저장된 OAuth ID 값 찾아오기 (encoder)
-		userRepository.save(User.of(username, "Oauth ID", nickname, PROVIDER_GOOGLE));
-		//TODO : 임시 DB 데이터 삭제
+		String password = encoder.encode(redisRepository.getValues(username));
+		userRepository.save(User.of(username, password, nickname, PROVIDER_GOOGLE));
 		return makeTokens(username);
 	}
 
@@ -77,6 +80,7 @@ public class GoogleAPI {
 		params.add("client_secret", CLIENT_SECRET);
 		params.add("redirect_uri", REDIRECT_URI);
 		params.add("code", authorize_code);
+		log.info("addParamByAuthorizeCode End");
 		return params;
 	}
 
@@ -86,7 +90,17 @@ public class GoogleAPI {
 	}
 
 	private ResponseEntity<String> getResponseByAccessToken(String accessToken) {
-		return new RestTemplate().postForEntity(USER_INFO_URI, getUserInfoRequest(accessToken), String.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", "Bearer " + accessToken);
+
+		HttpEntity request = new HttpEntity(headers);
+
+		return new RestTemplate().exchange(
+			USER_INFO_URI,
+			HttpMethod.GET,
+			request,
+			String.class
+		);
 	}
 
 	private static HttpEntity<MultiValueMap<String, String>> getUserInfoRequest(String accessToken) {
@@ -104,6 +118,7 @@ public class GoogleAPI {
 	}
 
 	private JsonElement getElementByResponseBody(ResponseEntity<String> response) {
+		System.out.println(response.getBody());
 		return new JsonParser().parse(response.getBody());
 	}
 
@@ -114,20 +129,25 @@ public class GoogleAPI {
 	}
 
 	private Map<String, String> getHeaderLoginState(String username, Map<String, String> header) {
+		header.put("provider", PROVIDER_GOOGLE);
 		if (userRepository.findByUsername(username).isPresent()) {
 			header.put("login", "sign-in");
 			return header;
 		}
 		header.put("login", "sign-up");
-		header.put("provider", PROVIDER_GOOGLE);
 		return header;
 	}
 
-	private Map<String, String> makeTokens(String username) {
+	private Map<String, String> putTokensMap(String username) {
 		Map<String, String> tokens = new HashMap<>();
-		tokens.put("token", JwtTokenUtil.generateToken(username, secretKey, expiredTimeMS));
-		tokens.put("refresh_token", "리프레쉬토큰");
+		TokenResponse token = jwtTokenUtil.generateToken(username);
+		tokens.put("accessToken", token.getToken());
+		tokens.put("refreshToken", token.getRefreshToken());
 		return tokens;
+	}
+
+	private Map<String, String> makeTokens(String username) {
+		return putTokensMap(username);
 	}
 
 }

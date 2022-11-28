@@ -24,14 +24,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
-	private final String key;
 	private final PrincipalDetailService principalDetailService;
+	private final JwtTokenUtil jwtTokenUtil;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
 
-		final String header = response.getHeader(HttpHeaders.AUTHORIZATION);
+		final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
 		if (header == null || !header.startsWith("Bearer ")) {
 			log.error("Error occurs while getting header, header is invalid");
@@ -41,12 +41,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		try {
 			final String token = header.split(" ")[1].trim();
-			String username = JwtTokenUtil.getUserName(token, key);
+			String username = jwtTokenUtil.getUserName(token);
 			UserDetails userDetails = principalDetailService.loadUserByUsername(username);
 
-			if (JwtTokenUtil.validateToken(token, userDetails, key)) {
+			if (jwtTokenUtil.validateToken(token, userDetails)) {
 				log.error("Key is expired");
-				filterChain.doFilter(request, response);
+				response.sendRedirect("토큰재발급페이지");
 				return;
 			}
 
