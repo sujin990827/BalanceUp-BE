@@ -1,21 +1,17 @@
 package com.balanceup.keum.controller;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Map;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.balanceup.keum.controller.request.UserJoinRequest;
+import com.balanceup.keum.controller.request.UserLoginRequest;
 import com.balanceup.keum.controller.response.Response;
 import com.balanceup.keum.controller.response.TokenResponse;
+import com.balanceup.keum.controller.response.UserInfoResponse;
 import com.balanceup.keum.service.GoogleAPI;
 import com.balanceup.keum.service.KakaoAPI;
 
@@ -31,113 +27,53 @@ public class OauthController {
 	private final GoogleAPI googleAPI;
 
 	@GetMapping("/login/kakao")
-	public void getKakaoUserInfo(@RequestParam String code, HttpServletResponse response) throws IOException {
-		Map<String, String> userInfo = kakaoAPI.getUserInfo(kakaoAPI.getAccessToken(code));
-		setCookie(response, userInfo);
-
-		if (userInfo.get("login").equals("sign-in")) {
-			response.sendRedirect("/auth/sign-in/kakao");
-			return;
-		}
-		response.sendRedirect("/auth/sign-up/kakao");
+	public ResponseEntity<?> getKakaoUserInfo(@RequestParam String code) {
+		return new ResponseEntity<>(
+			Response.of("success", "유저 정보 받아오기 성공",
+				new UserInfoResponse(kakaoAPI.getUserInfo(kakaoAPI.getAccessToken(code)))), HttpStatus.OK
+		);
 	}
 
 	@GetMapping("/auth/sign-up/kakao")
-	public ResponseEntity<?> kakaoJoin(HttpServletRequest request) {
-		Userinfo userinfo = getUserInfoByCookies(request);
-		isKakaoLogin(userinfo.provider);
-
-		String nickname = "sjk"; //TODO : 클라이언트에서 받아와야 되는 값 (cookie or header)
+	public ResponseEntity<?> kakaoJoin(@RequestBody UserJoinRequest request) {
+		isKakaoLogin(request.getProvider());
 		return new ResponseEntity<>(
 			Response.of("success", "회원가입 성공",
-				new TokenResponse(kakaoAPI.join(userinfo.username, nickname))), HttpStatus.CREATED);
+				new TokenResponse(kakaoAPI.join(request.getUsername(), request.getNickname()))), HttpStatus.CREATED);
 	}
 
 	@GetMapping("/auth/sign-in/kakao")
-	public ResponseEntity<?> kakaoLogin(HttpServletRequest request) {
-		Userinfo userinfo = getUserInfoByCookies(request);
-		isKakaoLogin(userinfo.provider);
+	public ResponseEntity<?> kakaoLogin(@RequestBody UserLoginRequest request) {
+		isKakaoLogin(request.getProvider());
 
 		return new ResponseEntity<>(
 			Response.of("success", "로그인 성공",
-				new TokenResponse(kakaoAPI.login(userinfo.username))), HttpStatus.OK);
+				new TokenResponse(kakaoAPI.login(request.getUsername()))), HttpStatus.OK);
 	}
 
 	@GetMapping("/login/google")
-	public void getGoogleUserInfo(@RequestParam String code, HttpServletResponse response) throws IOException {
-		Map<String, String> userInfo = googleAPI.getUserInfo(googleAPI.getAccessToken(code));
-		log.info("getGoogleUserInfo");
-		System.out.println(userInfo.toString());
-		setCookie(response, userInfo);
-
-		if (userInfo.get("login").equals("sign-in")) {
-			response.sendRedirect("/auth/sign-in/google");
-			return;
-		}
-		response.sendRedirect("/auth/sign-up/google");
+	public ResponseEntity<?> getGoogleUserInfo(@RequestParam String code) {
+		return new ResponseEntity<>(
+			Response.of("success", "유저 정보 받아오기 성공",
+				new UserInfoResponse(googleAPI.getUserInfo(googleAPI.getAccessToken(code)))), HttpStatus.OK
+		);
 	}
 
 	@GetMapping("/auth/sign-up/google")
-	public ResponseEntity<?> googleJoin(HttpServletRequest request) {
-		Userinfo userinfo = getUserInfoByCookies(request);
-		isGoogleLogin(userinfo.provider);
-
-		String nickname = "sjkggo"; //TODO : 클라이언트에서 받아와야 되는 값 (cookie or header)
+	public ResponseEntity<?> googleJoin(@RequestBody UserJoinRequest request) {
+		isGoogleLogin(request.getProvider());
 		return new ResponseEntity<>(
-			Response.of("success", "회원가입 성공", new TokenResponse(googleAPI.join(userinfo.username, nickname))),
-			HttpStatus.CREATED);
+			Response.of("success", "회원가입 성공",
+				new TokenResponse(googleAPI.join(request.getUsername(), request.getNickname()))), HttpStatus.CREATED);
 	}
 
 	@GetMapping("/auth/sign-in/google")
-	public ResponseEntity<?> googleLogin(HttpServletRequest request) {
-		Userinfo userinfo = getUserInfoByCookies(request);
-		isGoogleLogin(userinfo.provider);
+	public ResponseEntity<?> googleLogin(@RequestBody UserLoginRequest request) {
+		isGoogleLogin(request.getProvider());
 
 		return new ResponseEntity<>(
-			Response.of("success", "로그인 성공", new TokenResponse(googleAPI.login(userinfo.username))), HttpStatus.OK);
-	}
-
-	private static Userinfo getUserInfoByCookies(HttpServletRequest request) {
-		Userinfo userinfo = new Userinfo();
-		Cookie[] cookies = request.getCookies();
-
-		for (Cookie cookie : cookies) {
-			if (cookie.getName().equals("provider")) {
-				userinfo.provider = cookie.getValue();
-			}
-			if (cookie.getName().equals("username")) {
-				userinfo.username = cookie.getValue();
-			}
-		}
-		return userinfo;
-	}
-
-	private static void setCookie(HttpServletResponse response, Map<String, String> userInfo) {
-		Cookie username = new Cookie("username", userInfo.get("username"));
-		Cookie provider = new Cookie("provider", userInfo.get("provider"));
-		Cookie login = new Cookie("login", userInfo.get("login"));
-
-		setCookieOption(username, provider, login);
-		for (Cookie cookie : Arrays.asList(username, provider, login)) {
-			response.addCookie(cookie);
-		}
-	}
-
-	private static void setCookieOption(Cookie username, Cookie provider, Cookie login) {
-		setMaxAge(username, provider, login);
-		setPath(username, provider, login);
-	}
-
-	private static void setPath(Cookie username, Cookie provider, Cookie login) {
-		username.setPath("/auth/");
-		provider.setPath("/auth/");
-		login.setPath("/auth/");
-	}
-
-	private static void setMaxAge(Cookie username, Cookie provider, Cookie login) {
-		username.setMaxAge(5);
-		provider.setMaxAge(5);
-		login.setMaxAge(5);
+			Response.of("success", "로그인 성공",
+				new TokenResponse(googleAPI.login(request.getUsername()))), HttpStatus.OK);
 	}
 
 	private static void isKakaoLogin(String provider) {
@@ -152,8 +88,4 @@ public class OauthController {
 		}
 	}
 
-	private static class Userinfo {
-		String username;
-		String provider;
-	}
 }
