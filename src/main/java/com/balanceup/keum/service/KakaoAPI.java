@@ -16,7 +16,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.balanceup.keum.config.util.JwtTokenUtil;
-import com.balanceup.keum.controller.response.TokenResponse;
+import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.RedisRepository;
 import com.balanceup.keum.repository.UserRepository;
@@ -52,8 +52,6 @@ public class KakaoAPI {
 	public Map<String, String> getUserInfo(String accessToken) {
 		ResponseEntity<String> response = getUserInfoResponse(setUserInfoHeaderByAccessToken(accessToken));
 
-		System.out.println(response.toString());
-
 		JsonElement element = getElementByResponseBody(response);
 		JsonElement kakaoAcount = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
 
@@ -66,12 +64,14 @@ public class KakaoAPI {
 
 	public Map<String, String> join(String username, String nickname) {
 		String password = encoder.encode(redisRepository.getValues(username));
+
 		userRepository.save(User.of(username, password, nickname, PROVIDER_KAKAO));
+
 		return makeTokens(username);
 	}
 
 	public Map<String, String> login(String username) {
-		User user = userRepository.findByUsername(username)
+		userRepository.findByUsername(username)
 			.orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 username 입니다."));
 		return makeTokens(username);
 	}
@@ -115,24 +115,24 @@ public class KakaoAPI {
 	}
 
 	private Map<String, String> getHeaderUserInfo(String username) {
-		Map<String, String> header = new HashMap<>();
-		header.put("username", username);
-		return getHeaderLoginState(username, header);
+		Map<String, String> state = new HashMap<>();
+		state.put("username", username);
+		return getHeaderLoginState(username, state);
 	}
 
-	private Map<String, String> getHeaderLoginState(String username, Map<String, String> header) {
-		header.put("provider", PROVIDER_KAKAO);
+	private Map<String, String> getHeaderLoginState(String username, Map<String, String> state) {
+		state.put("provider", PROVIDER_KAKAO);
 		if (userRepository.findByUsername(username).isPresent()) {
-			header.put("login", "sign-in");
-			return header;
+			state.put("login", "sign-in");
+			return state;
 		}
-		header.put("login", "sign-up");
-		return header;
+		state.put("login", "sign-up");
+		return state;
 	}
 
 	private Map<String, String> putTokensMap(String username) {
 		Map<String, String> tokens = new HashMap<>();
-		TokenResponse token = jwtTokenUtil.generateToken(username);
+		TokenDto token = jwtTokenUtil.generateToken(username);
 		tokens.put("accessToken", token.getToken());
 		tokens.put("refreshToken", token.getRefreshToken());
 

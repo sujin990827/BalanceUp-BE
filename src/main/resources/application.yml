@@ -23,37 +23,7 @@ spring:
   sql:
     init:
       mode: always
-
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: 915621246164-v0qg2t6ptjk6jlj6g6hggvmnnh8ul1nd.apps.googleusercontent.com
-            client-secret: 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
-            scope:
-              - email
-              - profile
-            redirect-uri: http://localhost:8080/login/oauth2/code/google
-
-          kakao:
-            client-id: 66323ceffc6f43bec404a2f2addbd415
-            client-secret: tySQhCLz0kvNuHkN8KfcPiAApR1WMK80
-            scope:
-              - profile_nickname
-              - account_email
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
-            authorization-grant-type: authorization_code
-            client-name: kakao
-            client-authentication-method: POST
-
-        provider:
-          kakao:
-            authorization-uri: https://kauth.kakao.com/oauth/authorize
-            token-uri: https://kauth.kakao.com/oauth/token
-            user-info-uri: https://kapi.kakao.com/v2/user/me
-            user-name-attribute: id
-
+  #TODO : submodule 정의 (jwt 관련, DB 관련, Oauth 관련), AWS EC2 배포
 jwt:
   secret-key: keum.2022.tlswornjs.dlatnwls.server.key.v0.01
   # 30 days

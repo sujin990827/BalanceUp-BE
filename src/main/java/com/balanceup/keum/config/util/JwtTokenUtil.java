@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.balanceup.keum.controller.response.TokenResponse;
+import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.repository.RedisRepository;
 
 import io.jsonwebtoken.Claims;
@@ -49,13 +49,13 @@ public class JwtTokenUtil {
 			.build().parseClaimsJws(token).getBody();
 	}
 
-	public TokenResponse generateToken(String username) {
+	public TokenDto generateToken(String username) {
 		Claims claims = Jwts.claims();
 		claims.put("username", username);
 		String accessToken = getToken(claims, accessTokenExpiredTimeMs);
 		String refreshToken = getToken(claims, refreshTokenExpiredTimeMs);
 		redisRepository.setValues(username,refreshToken, Duration.ofMillis(refreshTokenExpiredTimeMs));
-		return new TokenResponse(accessToken, refreshToken);
+		return new TokenDto(accessToken, refreshToken);
 	}
 
 	private String getToken(Claims claims, Long tokenExpiredTimeMs) {

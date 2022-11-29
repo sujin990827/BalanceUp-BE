@@ -1,4 +1,4 @@
-package com.balanceup.keum.controller.request;
+package com.balanceup.keum.controller.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.balanceup.keum.controller.response;
+package com.balanceup.keum.controller.dto;
 
 import java.util.Map;
 
@@ -7,12 +7,12 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class TokenResponse {
+public class TokenDto {
 
 	String token;
 	String refreshToken;
 
-	public TokenResponse(Map<String, String> tokens) {
+	public TokenDto(Map<String, String> tokens) {
 		this.token = tokens.get("accessToken");
 		this.refreshToken = tokens.get("refreshToken");
 	}

@@ -45,18 +45,17 @@ public class JwtFilter extends OncePerRequestFilter {
 			UserDetails userDetails = principalDetailService.loadUserByUsername(username);
 
 			if (jwtTokenUtil.validateToken(token, userDetails)) {
-				log.error("Key is expired");
-				response.sendRedirect("토큰재발급페이지");
+				//TODO : 만료를 어떻게 클라이언트에게 어떻게 알려줄껀지
+				filterChain.doFilter(request, response);
 				return;
 			}
 
-			UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-				userDetails, null, userDetails.getAuthorities()
-			);
+			UsernamePasswordAuthenticationToken authentication =
+				new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
 			authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 		} catch (RuntimeException e) {
-			log.error("Error occurs while validating. {}", e.toString());
 			filterChain.doFilter(request, response);
 			return;
 		}

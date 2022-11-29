@@ -2,18 +2,19 @@ package com.balanceup.keum.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.balanceup.keum.config.util.JwtTokenUtil;
-import com.balanceup.keum.controller.request.DuplicateNicknameRequest;
-import com.balanceup.keum.controller.request.UpdateNicknameRequest;
-import com.balanceup.keum.controller.response.Response;
-import com.balanceup.keum.repository.RedisRepository;
+import com.balanceup.keum.config.auth.PrincipalDetailService;
+import com.balanceup.keum.controller.dto.TokenDto;
+import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
+import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
+import com.balanceup.keum.controller.dto.response.Response;
 import com.balanceup.keum.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
 	private final UserService userService;
-	private final RedisRepository redisRepository;
-	private final JwtTokenUtil jwtTokenUtil;
+	private final PrincipalDetailService principalDetailService;
 
 	@PostMapping("/user/nickname")
 	public ResponseEntity<?> duplicateNickname(@RequestBody DuplicateNicknameRequest dto) {
@@ -42,17 +42,16 @@ public class UserController {
 	}
 
 	@GetMapping("/auth/refresh")
-	public ResponseEntity<?> getRefreshToken(Authentication authentication) {
-		String username = redisRepository.getValues(authentication.getName());
-		isNullRedisData(username);
+	public ResponseEntity<?> getRefreshToken(TokenDto tokenDto) {
+		String username = getUserNameBySecurityContextHolder();
+		UserDetails userDetails = principalDetailService.loadUserByUsername(username);
+
 		return new ResponseEntity<>(
-			getSuccessResponse("AccessToken 재발급이 완료되었습니다.", jwtTokenUtil.generateToken(username)), HttpStatus.OK);
+			getSuccessResponse("AccessToken 재발급이 완료되었습니다.", userService.reIssue(tokenDto, userDetails)), HttpStatus.OK);
 	}
 
-	private static void isNullRedisData(String username) {
-		if (username == null) {
-			throw new IllegalStateException("Refresh 토큰이 만료되었습니다.");
-		}
+	private static String getUserNameBySecurityContextHolder() {
+		return SecurityContextHolder.getContext().getAuthentication().getName();
 	}
 
 }

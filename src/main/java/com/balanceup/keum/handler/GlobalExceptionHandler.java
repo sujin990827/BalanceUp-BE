@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.balanceup.keum.controller.response.Response;
+import com.balanceup.keum.controller.dto.response.Response;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

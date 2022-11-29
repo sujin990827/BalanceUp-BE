@@ -1,4 +1,4 @@
-package com.balanceup.keum.controller.request;
+package com.balanceup.keum.controller.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class DuplicateNicknameRequest {
+public class UserLoginRequest {
 
-	String nickname;
+	private String username;
+	private String provider;
 }

@@ -16,7 +16,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.balanceup.keum.config.util.JwtTokenUtil;
-import com.balanceup.keum.controller.response.TokenResponse;
+import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.RedisRepository;
 import com.balanceup.keum.repository.UserRepository;
@@ -80,7 +80,6 @@ public class GoogleAPI {
 		params.add("client_secret", CLIENT_SECRET);
 		params.add("redirect_uri", REDIRECT_URI);
 		params.add("code", authorize_code);
-		log.info("addParamByAuthorizeCode End");
 		return params;
 	}
 
@@ -103,10 +102,6 @@ public class GoogleAPI {
 		);
 	}
 
-	private static HttpEntity<MultiValueMap<String, String>> getUserInfoRequest(String accessToken) {
-		return new HttpEntity<>(setParamByAccessToken(accessToken), null);
-	}
-
 	private static MultiValueMap<String, String> setParamByAccessToken(String accessToken) {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("access_Token", accessToken);
@@ -123,24 +118,24 @@ public class GoogleAPI {
 	}
 
 	private Map<String, String> getHeaderUserInfo(String username) {
-		Map<String, String> header = new HashMap<>();
-		header.put("username", username);
-		return getHeaderLoginState(username, header);
+		Map<String, String> state = new HashMap<>();
+		state.put("username", username);
+		return getHeaderLoginState(username, state);
 	}
 
-	private Map<String, String> getHeaderLoginState(String username, Map<String, String> header) {
-		header.put("provider", PROVIDER_GOOGLE);
+	private Map<String, String> getHeaderLoginState(String username, Map<String, String> state) {
+		state.put("provider", PROVIDER_GOOGLE);
 		if (userRepository.findByUsername(username).isPresent()) {
-			header.put("login", "sign-in");
-			return header;
+			state.put("login", "sign-in");
+			return state;
 		}
-		header.put("login", "sign-up");
-		return header;
+		state.put("login", "sign-up");
+		return state;
 	}
 
 	private Map<String, String> putTokensMap(String username) {
 		Map<String, String> tokens = new HashMap<>();
-		TokenResponse token = jwtTokenUtil.generateToken(username);
+		TokenDto token = jwtTokenUtil.generateToken(username);
 		tokens.put("accessToken", token.getToken());
 		tokens.put("refreshToken", token.getRefreshToken());
 		return tokens;
