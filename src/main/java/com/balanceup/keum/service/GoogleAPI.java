@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -32,13 +33,18 @@ import lombok.extern.slf4j.Slf4j;
 public class GoogleAPI {
 
 	private final String PROVIDER_GOOGLE = "google";
-	private final String TOKEN_URL = "https://oauth2.googleapis.com/token";
-	private final String USER_INFO_URI = "https://www.googleapis.com/oauth2/v1/userinfo";
-	//TODO : CLIENT_ID yml 파일에 넣기
-	private final String CLIENT_ID = "915621246164-v0qg2t6ptjk6jlj6g6hggvmnnh8ul1nd.apps.googleusercontent.com";
-	private final String CLIENT_SECRET = "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";
-	private final String REDIRECT_URI = "http://localhost:8080/login/google";
 	private final String GRANT_TYPE = "authorization_code";
+
+	@Value("${oauth.google.token-url}")
+	private  String TOKEN_URL;
+	@Value("${oauth.google.userinfo}")
+	private  String USER_INFO_URI;
+	@Value("${oauth.google.client-id}")
+	private  String CLIENT_ID;
+	@Value("${oauth.google.secret}")
+	private  String CLIENT_SECRET;
+	@Value("${oauth.google.redirect}")
+	private  String REDIRECT_URI;
 
 	private final UserRepository userRepository;
 	private final JwtTokenUtil jwtTokenUtil;
@@ -100,12 +106,6 @@ public class GoogleAPI {
 			request,
 			String.class
 		);
-	}
-
-	private static MultiValueMap<String, String> setParamByAccessToken(String accessToken) {
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("access_Token", accessToken);
-		return params;
 	}
 
 	private ResponseEntity<String> getGoogleTokenResponse(String authorize_code) {

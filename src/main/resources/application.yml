@@ -23,12 +23,9 @@ spring:
   sql:
     init:
       mode: always
-  #TODO : submodule 정의 (jwt 관련, DB 관련, Oauth 관련), AWS EC2 배포
-jwt:
-  secret-key: keum.2022.tlswornjs.dlatnwls.server.key.v0.01
-  # 30 days
-  access-token-expired-time-ms: 1800000
-  refresh-token-expired-time-ms: 1296000000
+
+  config:
+    import: balnce-up-key/oauth.yml
 
 logging:
   level:

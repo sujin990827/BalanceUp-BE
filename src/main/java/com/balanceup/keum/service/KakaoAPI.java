@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -32,12 +33,19 @@ import lombok.extern.slf4j.Slf4j;
 public class KakaoAPI {
 
 	private final String PROVIDER_KAKAO = "kakao";
-	private final String TOKEN_URL = "https://kauth.kakao.com/oauth/token";
-	private final String USER_INFO_URI = "https://kapi.kakao.com/v2/user/me";
-	//TODO : CLIENT_ID yml 파일에 넣기
-	private final String CLIENT_ID = "66323ceffc6f43bec404a2f2addbd415";
-	private final String REDIRECT_URI = "http://localhost:8080/login/kakao";
 	private final String GRANT_TYPE = "authorization_code";
+
+	@Value("${oauth.kakao.token-url}")
+	private String TOKEN_URL;
+
+	@Value("${oauth.kakao.userinfo}")
+	private String USER_INFO_URI;
+
+	@Value("${oauth.kakao.client-id}")
+	private String CLIENT_ID;
+
+	@Value("${oauth.kakao.redirect}")
+	private String REDIRECT_URI;
 
 	private final UserRepository userRepository;
 	private final JwtTokenUtil jwtTokenUtil;

@@ -44,10 +44,8 @@ public class JwtFilter extends OncePerRequestFilter {
 			String username = jwtTokenUtil.getUserName(token);
 			UserDetails userDetails = principalDetailService.loadUserByUsername(username);
 
-			if (jwtTokenUtil.validateToken(token, userDetails)) {
-				//TODO : 만료를 어떻게 클라이언트에게 어떻게 알려줄껀지
-				filterChain.doFilter(request, response);
-				return;
+			if (!jwtTokenUtil.validateToken(token, userDetails)) {
+				throw new IllegalStateException("Refresh token 만료");
 			}
 
 			UsernamePasswordAuthenticationToken authentication =
