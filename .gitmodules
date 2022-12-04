@@ -1,4 +1,4 @@
-[submodule "balnce-up-key"]
-    path = balnce-up-key
+[submodule "src/main/resources"]
+    path = src/main/resources
     url = https://github.com/ShinjaeKwon/balnce-up-key
     branch = main
