@@ -34,7 +34,8 @@ public class UserController {
 
 	@PutMapping("/user/nickname")
 	public ResponseEntity<?> updateNickname(@RequestBody UpdateNicknameRequest dto) {
-		return new ResponseEntity<>(getSuccessResponse("닉네임 업데이트 성공", userService.updateNickname(dto)), HttpStatus.OK);
+		String username = getUserNameBySecurityContextHolder();
+		return new ResponseEntity<>(getSuccessResponse("닉네임 업데이트 성공", userService.updateNickname(dto, username)), HttpStatus.OK);
 	}
 
 	private static Response<Object> getSuccessResponse(String message, Object body) {
@@ -47,7 +48,7 @@ public class UserController {
 		UserDetails userDetails = principalDetailService.loadUserByUsername(username);
 
 		return new ResponseEntity<>(
-			getSuccessResponse("AccessToken 재발급이 완료되었습니다.", userService.reIssue(tokenDto, userDetails)), HttpStatus.OK);
+			getSuccessResponse("AccessToken 재발급이 완료되었습니다.", userService.reIssue(tokenDto, userDetails)), HttpStatus.CREATED);
 	}
 
 	private static String getUserNameBySecurityContextHolder() {

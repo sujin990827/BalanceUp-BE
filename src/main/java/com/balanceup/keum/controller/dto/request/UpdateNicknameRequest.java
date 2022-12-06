@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class UpdateNicknameRequest {
 
-	String username;
 	String nickname;
 	String token;
 

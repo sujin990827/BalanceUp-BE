@@ -30,8 +30,7 @@ public class UserService {
 	private final RedisRepository redisRepository;
 
 	@Transactional
-	public UserResponse updateNickname(UpdateNicknameRequest dto) {
-		String username = dto.getUsername();
+	public UserResponse updateNickname(UpdateNicknameRequest dto, String username) {
 		String nickname = dto.getNickname();
 
 		if (userRepository.findByNickname(nickname).isPresent()) {
