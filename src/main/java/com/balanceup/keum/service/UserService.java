@@ -2,6 +2,8 @@ package com.balanceup.keum.service;
 
 import static java.util.Objects.*;
 
+import java.util.Optional;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +13,7 @@ import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
 import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
 import com.balanceup.keum.controller.dto.response.UserResponse;
+import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.RedisRepository;
 import com.balanceup.keum.repository.UserRepository;
 
@@ -46,9 +49,12 @@ public class UserService {
 	public String duplicateNickname(DuplicateNicknameRequest dto) {
 		isValidNickname(dto.getNickname());
 
-		return userRepository.findByNickname(dto.getNickname())
-			.orElseThrow(() -> new IllegalStateException("이미 존재하는 닉네임입니다."))
-			.getNickname();
+		Optional<User> optionalUser = userRepository.findByNickname(dto.getNickname());
+
+		if (optionalUser.isPresent()) {
+			throw new IllegalStateException("이미 존재하는 닉네임입니다.");
+		}
+		return dto.getNickname();
 	}
 
 	public TokenDto reIssue(TokenDto dto, UserDetails userDetails) {
