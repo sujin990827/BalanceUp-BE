@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -13,10 +15,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import com.balanceup.keum.config.util.JwtTokenUtil;
+import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
 import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
 import com.balanceup.keum.domain.User;
+import com.balanceup.keum.repository.RedisRepository;
 import com.balanceup.keum.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,6 +31,12 @@ public class UserServiceTest {
 
 	@Mock
 	private UserRepository userRepository;
+
+	@Mock
+	private JwtTokenUtil jwtTokenUtil;
+
+	@Mock
+	private RedisRepository redisRepository;
 
 	@InjectMocks
 	private UserService userService;
@@ -135,6 +148,61 @@ public class UserServiceTest {
 
 		//when & then
 		assertDoesNotThrow(() -> userService.updateNickname(request, "username"));
+	}
+
+	@DisplayName("Refresh 토큰 테스트 - 토큰 만료시")
+	@Test
+	void given_WrongRefreshToken_when_ReIssue_then_ThrowException() {
+		//given
+		TokenDto dto = new TokenDto(Map.of("accessToken", "accessToken", "refreshToken", "refreshToken"));
+		UserDetails details =
+			new org.springframework.security.core.userdetails.User("username", "password",
+				List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+		//mock
+		when(jwtTokenUtil.validateToken(dto.getRefreshToken(), details)).thenReturn(false);
+
+		//when & then
+		IllegalStateException e = assertThrows(IllegalStateException.class,
+			() -> userService.reIssue(dto, details));
+		assertEquals("Refresh 토큰이 만료되었습니다.", e.getMessage());
+	}
+
+	@DisplayName("Refresh 토큰 테스트 - Redis 에 없는 토큰일 때")
+	@Test
+	void given_NotNormalToken_when_ReIssue_then_ThrowException() {
+		//given
+		TokenDto dto = new TokenDto(Map.of("accessToken", "accessToken", "refreshToken", "refreshToken"));
+		UserDetails details =
+			new org.springframework.security.core.userdetails.User("username", "password",
+				List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+		//mock
+		when(jwtTokenUtil.validateToken(dto.getRefreshToken(), details)).thenReturn(true);
+		when(redisRepository.getValues(details.getUsername())).thenReturn("notNormalToken");
+
+		//when & then
+		IllegalStateException e = assertThrows(IllegalStateException.class,
+			() -> userService.reIssue(dto, details));
+		assertEquals("만료되거나 존재하지 않는 RefreshToken 입니다. 다시 로그인을 시도해주세요", e.getMessage());
+	}
+
+	@DisplayName("Refresh 토큰 테스트 - Redis에 존재하는 토큰일 때")
+	@Test
+	void given_NormalToken_when_ReIssue_then_DoesNotThrow() {
+		//given
+		TokenDto dto = new TokenDto(Map.of("accessToken", "accessToken", "refreshToken", "refreshToken"));
+		UserDetails details =
+			new org.springframework.security.core.userdetails.User("username", "password",
+				List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+		//mock
+		when(jwtTokenUtil.validateToken(dto.getRefreshToken(), details)).thenReturn(true);
+		when(redisRepository.getValues(details.getUsername())).thenReturn(dto.getRefreshToken());
+		when(jwtTokenUtil.generateToken(details.getUsername())).thenReturn(any(TokenDto.class), eq(dto));
+
+		//when & then
+		assertDoesNotThrow(() -> userService.reIssue(dto, details));
 	}
 
 }
