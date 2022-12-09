@@ -58,14 +58,14 @@ public class UserService {
 
 	public TokenDto reIssue(TokenDto dto, UserDetails userDetails) {
 		if (!jwtTokenUtil.validateToken(dto.getRefreshToken(), userDetails)) {
-			throw new IllegalArgumentException("Refresh 토큰이 만료되었습니다.");
+			throw new IllegalStateException("Refresh 토큰이 만료되었습니다.");
 		}
 
 		String username = userDetails.getUsername();
 		String refreshTokenInRedis = redisRepository.getValues(username);
 
 		if (refreshTokenInRedis == null || !isNormalRefreshToken(dto, refreshTokenInRedis)) {
-			throw new IllegalArgumentException("만료되거나 존재하지 않는 RefreshToken 입니다. 다시 로그인을 시도해주세요");
+			throw new IllegalStateException("만료되거나 존재하지 않는 RefreshToken 입니다. 다시 로그인을 시도해주세요");
 		}
 
 		return jwtTokenUtil.generateToken(username);
