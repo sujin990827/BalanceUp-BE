@@ -34,7 +34,7 @@ public class UserService {
 		String nickname = dto.getNickname();
 
 		if (userRepository.findByNickname(nickname).isPresent()) {
-			throw new IllegalStateException("이미 회원가입한 유저입니다.");
+			throw new IllegalStateException("이미 존재하는 닉네임입니다.");
 		}
 
 		isValidNickname(nickname);
