@@ -50,7 +50,7 @@ public class UserServiceTest {
 		DuplicateNicknameRequest request = new DuplicateNicknameRequest(nickname1);
 
 		//mock
-		Mockito.when(userRepository.findByNickname(any())).thenReturn(Optional.of(user));
+		Mockito.when(userRepository.findByNickname(nickname1)).thenReturn(Optional.of(user));
 
 		//when & then
 		IllegalStateException e = assertThrows(IllegalStateException.class,
@@ -66,7 +66,7 @@ public class UserServiceTest {
 		DuplicateNicknameRequest request = new DuplicateNicknameRequest(nickname1);
 
 		//mock
-		Mockito.when(userRepository.findByNickname(any())).thenReturn(Optional.empty());
+		Mockito.when(userRepository.findByNickname(nickname1)).thenReturn(Optional.empty());
 
 		//when & then
 		assertDoesNotThrow(() -> userService.duplicateNickname(request));
