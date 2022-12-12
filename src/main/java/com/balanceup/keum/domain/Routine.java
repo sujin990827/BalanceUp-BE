@@ -2,16 +2,21 @@ package com.balanceup.keum.domain;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -28,42 +33,55 @@ import lombok.ToString;
 @Entity
 public class Routine {
 
+	public static final int ROUTINE_MAX_DAY = 14;
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@Column(name = "routine_id")
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "User_nickname")
-	private User nickname;
+	@JoinColumn(name = "user_id")
+	private User user;
 
-	@Column(length = 100, nullable = false)
-	private String content; //루틴명
+	@Column(length = 100, nullable = false, name = "routine_title")
+	private String routineTitle;
 
-	private boolean done;
+	@JoinColumn(name = "routine_id")
+	@OneToMany(fetch = FetchType.EAGER)
+	List<RoutineDay> routineDays;
+
+	private boolean completed = false;
+
+	private boolean alarm;
 
 	@Enumerated(EnumType.STRING)
-	private Category category; // 운동,학습,일상,마음관리
+	private RoutineCategory routineCategory;
 
 	@Column
-	private String days; // 루틴 지정 날짜
+	private String days;
 
 	@Column(name = "create_at")
-	private Timestamp createAt;  // 루틴 등록 날짜
+	private Timestamp createAt;
 
 	@Column(name = "modified_at")
 	private Timestamp modifiedAt;
 
-	@Column(name = "deleted_at")
-	private Timestamp deletedAt;
-
-	public static Routine of(String content, boolean done, Category category){
-		return new Routine(content, done, category);
+	public static Routine of(String content, RoutineCategory routineCategory, boolean alarm) {
+		return new Routine(content, routineCategory, alarm);
 	}
 
-	public Routine(String content, boolean done, Category category) {
-		this.content = content;
-		this.done = done;
-		this.category = category;
+	public Routine(String routineTitle, RoutineCategory routineCategory, boolean alarm) {
+		this.routineTitle = routineTitle;
+		this.routineCategory = routineCategory;
+		this.alarm = alarm;
+		this.routineDays = new ArrayList<>();
+		for (int day = 0; day < ROUTINE_MAX_DAY; day++) {
+			this.routineDays.add(RoutineDay.makeRoutineDay(new Date(), day));
+		}
+	}
+
+	public List<Day> getDayList() {
+		return Day.getDayListByDaysColumn(this.days);
 	}
 
 	@PrePersist
