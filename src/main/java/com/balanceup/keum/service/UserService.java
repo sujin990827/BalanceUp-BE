@@ -48,11 +48,10 @@ public class UserService {
 	public String duplicateNickname(DuplicateNicknameRequest dto) {
 		isValidNickname(dto.getNickname());
 
-		Optional<User> optionalUser = userRepository.findByNickname(dto.getNickname());
-
-		if (optionalUser.isPresent()) {
+		if (userRepository.findByNickname(dto.getNickname()).isPresent()) {
 			throw new IllegalStateException("이미 존재하는 닉네임입니다.");
 		}
+
 		return dto.getNickname();
 	}
 
