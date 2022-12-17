@@ -2,8 +2,6 @@ package com.balanceup.keum.service;
 
 import static java.util.Objects.*;
 
-import java.util.Optional;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +11,6 @@ import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
 import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
 import com.balanceup.keum.controller.dto.response.UserResponse;
-import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.RedisRepository;
 import com.balanceup.keum.repository.UserRepository;
 

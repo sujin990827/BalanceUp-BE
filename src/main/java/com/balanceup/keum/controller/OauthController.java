@@ -12,8 +12,8 @@ import com.balanceup.keum.controller.dto.request.UserLoginRequest;
 import com.balanceup.keum.controller.dto.response.Response;
 import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.response.UserInfoResponse;
-import com.balanceup.keum.service.GoogleAPI;
-import com.balanceup.keum.service.KakaoAPI;
+import com.balanceup.keum.service.GoogleApi;
+import com.balanceup.keum.service.KakaoApi;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +23,14 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class OauthController {
 
-	private final KakaoAPI kakaoAPI;
-	private final GoogleAPI googleAPI;
+	private final KakaoApi kakaoAPI;
+	private final GoogleApi googleAPI;
 
 	@GetMapping("/login/kakao")
-	public ResponseEntity<?> getKakaoUserInfo(@RequestParam String code) {
+	public ResponseEntity<?> getKakaoUserInfo(@RequestParam String accessToken) {
 		return new ResponseEntity<>(
 			Response.of("success", "유저 정보 받아오기 성공",
-				new UserInfoResponse(kakaoAPI.getUserInfo(kakaoAPI.getAccessToken(code)))), HttpStatus.OK
+				new UserInfoResponse(kakaoAPI.getUserInfo(accessToken))), HttpStatus.OK
 		);
 	}
 
@@ -52,10 +52,10 @@ public class OauthController {
 	}
 
 	@GetMapping("/login/google")
-	public ResponseEntity<?> getGoogleUserInfo(@RequestParam String code) {
+	public ResponseEntity<?> getGoogleUserInfo(@RequestParam String accessToken) {
 		return new ResponseEntity<>(
 			Response.of("success", "유저 정보 받아오기 성공",
-				new UserInfoResponse(googleAPI.getUserInfo(googleAPI.getAccessToken(code)))), HttpStatus.OK
+				new UserInfoResponse(googleAPI.getUserInfo(accessToken))), HttpStatus.OK
 		);
 	}
 

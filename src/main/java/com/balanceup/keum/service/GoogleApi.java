@@ -7,7 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,21 +30,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class KakaoAPI {
+public class GoogleApi {
 
-	private final String PROVIDER_KAKAO = "kakao";
+	private final String PROVIDER_GOOGLE = "google";
 	private final String GRANT_TYPE = "authorization_code";
 
-	@Value("${oauth.kakao.token-url}")
+	@Value("${oauth.google.token-url}")
 	private String TOKEN_URL;
-
-	@Value("${oauth.kakao.userinfo}")
+	@Value("${oauth.google.userinfo}")
 	private String USER_INFO_URI;
-
-	@Value("${oauth.kakao.client-id}")
+	@Value("${oauth.google.client-id}")
 	private String CLIENT_ID;
-
-	@Value("${oauth.kakao.redirect}")
+	@Value("${oauth.google.secret}")
+	private String CLIENT_SECRET;
+	@Value("${oauth.google.redirect}")
 	private String REDIRECT_URI;
 
 	private final UserRepository userRepository;
@@ -52,29 +51,20 @@ public class KakaoAPI {
 	private final RedisRepository redisRepository;
 	private final BCryptPasswordEncoder encoder;
 
-	public String getAccessToken(String authorize_code) {
-		ResponseEntity<String> response = getKakaoTokenResponse(authorize_code);
-		return getElementByResponseBody(response).getAsJsonObject().get("access_token").getAsString();
-	}
-
 	public Map<String, String> getUserInfo(String accessToken) {
-		ResponseEntity<String> response = getUserInfoResponse(setUserInfoHeaderByAccessToken(accessToken));
-
-		JsonElement element = getElementByResponseBody(response);
-		JsonElement kakaoAcount = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
+		JsonElement element = getElementByResponseBody(getResponseByAccessToken(accessToken));
 
 		String password = element.getAsJsonObject().get("id").getAsString();
-		String username = kakaoAcount.getAsJsonObject().get("email").getAsString();
+		String username = element.getAsJsonObject().get("email").getAsString();
 
 		redisRepository.setValues(username, password, Duration.ofMillis(60 * 1000));
+
 		return getHeaderUserInfo(username);
 	}
 
 	public Map<String, String> join(String username, String nickname) {
 		String password = encoder.encode(redisRepository.getValues(username));
-
-		userRepository.save(User.of(username, password, nickname, PROVIDER_KAKAO));
-
+		userRepository.save(User.of(username, password, nickname, PROVIDER_GOOGLE));
 		return makeTokens(username);
 	}
 
@@ -88,38 +78,38 @@ public class KakaoAPI {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("grant_type", GRANT_TYPE);
 		params.add("client_id", CLIENT_ID);
+		params.add("client_secret", CLIENT_SECRET);
 		params.add("redirect_uri", REDIRECT_URI);
 		params.add("code", authorize_code);
 		return params;
 	}
 
-	private static HttpHeaders setHeaderContentTypeApplicationFormUrlencoded() {
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Content-type", MediaType.APPLICATION_FORM_URLENCODED_VALUE);
-		return headers;
-	}
-
-	private HttpEntity<MultiValueMap<String, String>> getKakaoTokenRequest(String authorize_code) {
+	private HttpEntity<MultiValueMap<String, String>> getOAuthTokenRequest(String authorize_code) {
 		return new HttpEntity<>(addParamByAuthorizeCode(authorize_code),
-			setHeaderContentTypeApplicationFormUrlencoded());
+			null);
 	}
 
-	private ResponseEntity<String> getKakaoTokenResponse(String authorize_code) {
-		return new RestTemplate().postForEntity(TOKEN_URL, getKakaoTokenRequest(authorize_code), String.class);
+	private ResponseEntity<String> getResponseByAccessToken(String accessToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", "Bearer " + accessToken);
+
+		HttpEntity request = new HttpEntity(headers);
+
+		return new RestTemplate().exchange(
+			USER_INFO_URI,
+			HttpMethod.GET,
+			request,
+			String.class
+		);
+	}
+
+	private ResponseEntity<String> getGoogleTokenResponse(String authorize_code) {
+		return new RestTemplate().postForEntity(TOKEN_URL, getOAuthTokenRequest(authorize_code), String.class);
 	}
 
 	private JsonElement getElementByResponseBody(ResponseEntity<String> response) {
+		System.out.println(response.getBody());
 		return new JsonParser().parse(response.getBody());
-	}
-
-	private ResponseEntity<String> getUserInfoResponse(HttpHeaders headers) {
-		return new RestTemplate().postForEntity(USER_INFO_URI, new HttpEntity<>(null, headers), String.class);
-	}
-
-	private static HttpHeaders setUserInfoHeaderByAccessToken(String accessToken) {
-		HttpHeaders headers = setHeaderContentTypeApplicationFormUrlencoded();
-		headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-		return headers;
 	}
 
 	private Map<String, String> getHeaderUserInfo(String username) {
@@ -129,7 +119,7 @@ public class KakaoAPI {
 	}
 
 	private Map<String, String> getHeaderLoginState(String username, Map<String, String> state) {
-		state.put("provider", PROVIDER_KAKAO);
+		state.put("provider", PROVIDER_GOOGLE);
 		if (userRepository.findByUsername(username).isPresent()) {
 			state.put("login", "sign-in");
 			return state;
@@ -143,11 +133,11 @@ public class KakaoAPI {
 		TokenDto token = jwtTokenUtil.generateToken(username);
 		tokens.put("accessToken", token.getToken());
 		tokens.put("refreshToken", token.getRefreshToken());
-
 		return tokens;
 	}
 
 	private Map<String, String> makeTokens(String username) {
 		return putTokensMap(username);
 	}
+
 }
