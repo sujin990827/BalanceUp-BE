@@ -61,15 +61,13 @@ public class KakaoApi {
 		String password = element.getAsJsonObject().get("id").getAsString();
 		String username = kakaoAcount.getAsJsonObject().get("email").getAsString();
 
-		redisRepository.setValues(username, password, Duration.ofMillis(60 * 1000));
+		redisRepository.setValues(username, password, Duration.ofMillis(60 * 1000 * 30));
 		return getHeaderUserInfo(username);
 	}
 
 	public Map<String, String> join(String username, String nickname) {
-		String password = encoder.encode(redisRepository.getValues(username));
-
-		userRepository.save(User.of(username, password, nickname, PROVIDER_KAKAO));
-
+		String encodePassword = encoder.encode(isExpireInRedis(username));
+		userRepository.save(User.of(username, encodePassword, nickname, PROVIDER_KAKAO));
 		return makeTokens(username);
 	}
 
@@ -140,6 +138,14 @@ public class KakaoApi {
 		tokens.put("refreshToken", token.getRefreshToken());
 
 		return tokens;
+	}
+
+	private String isExpireInRedis(String username) {
+		String rawPassword = redisRepository.getValues(username);
+		if (rawPassword == null) {
+			throw new IllegalStateException("Password is expire in Redis");
+		}
+		return rawPassword;
 	}
 
 	private Map<String, String> makeTokens(String username) {
