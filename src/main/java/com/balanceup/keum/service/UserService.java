@@ -71,6 +71,7 @@ public class UserService {
 		return jwtTokenUtil.generateToken(username);
 	}
 
+	@Transactional
 	public User delete(DeleteUserRequest request) {
 		User user = getUserByUsername(request.getUsername());
 		user.withdraw();
