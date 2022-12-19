@@ -2,15 +2,19 @@ package com.balanceup.keum.service;
 
 import static java.util.Objects.*;
 
+import java.util.Optional;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.TokenDto;
+import com.balanceup.keum.controller.dto.request.DeleteUserRequest;
 import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
 import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
 import com.balanceup.keum.controller.dto.response.UserResponse;
+import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.RedisRepository;
 import com.balanceup.keum.repository.UserRepository;
 
@@ -65,6 +69,23 @@ public class UserService {
 		}
 
 		return jwtTokenUtil.generateToken(username);
+	}
+
+	public User delete(DeleteUserRequest request) {
+		User user = getUserByUsername(request.getUsername());
+		user.withdraw();
+		return user;
+	}
+
+	private User getUserByUsername(String username) {
+		return checkUserByUsername(userRepository.findByUsername(username));
+	}
+
+	private static User checkUserByUsername(Optional<User> optionalUser) {
+		if (optionalUser.isEmpty()) {
+			throw new IllegalStateException("사용자가 정확하지 않습니다.");
+		}
+		return optionalUser.get();
 	}
 
 	private static boolean isNormalRefreshToken(TokenDto dto, String refreshTokenInRedis) {

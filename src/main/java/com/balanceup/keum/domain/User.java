@@ -83,7 +83,7 @@ public class User {
 		this.modifiedAt = Timestamp.from(Instant.now());
 	}
 
-	public void updateProvider(String provider) {
-		this.provider += "," + provider;
+	public void withdraw() {
+		this.deletedAt = Timestamp.from(Instant.now());
 	}
 }
