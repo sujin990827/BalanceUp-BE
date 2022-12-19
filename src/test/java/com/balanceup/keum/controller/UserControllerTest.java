@@ -27,9 +27,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.balanceup.keum.config.auth.PrincipalDetailService;
 import com.balanceup.keum.controller.dto.TokenDto;
+import com.balanceup.keum.controller.dto.request.DeleteUserRequest;
 import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
 import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
 import com.balanceup.keum.controller.dto.response.UserResponse;
+import com.balanceup.keum.domain.User;
 import com.balanceup.keum.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -263,6 +265,49 @@ public class UserControllerTest {
 			.andExpect(status().isBadRequest())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.resultCode", containsString("error")));
+	}
+
+	@DisplayName("[API][POST] 회원 탈퇴 테스트 (로그인한 유저는 잘못된 유저) - 실패")
+	@Test
+	void given_NonExistentUser_when_DeleteUser_then_ReturnBadRequest() throws Exception {
+		//given
+		String username = "username";
+		DeleteUserRequest request = new DeleteUserRequest(username);
+
+		//mock
+		when(userService.delete(Mockito.any(DeleteUserRequest.class))).thenThrow(IllegalStateException.class);
+
+		//when & then
+		mockMvc.perform(post("/withdraw")
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(request))
+			).andDo(print())
+			.andExpect(status().isBadRequest())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.resultCode", containsString("error")));
+	}
+
+	@DisplayName("[API][POST] 회원 탈퇴 테스트 - 성공")
+	@Test
+	void given_Username_when_DeleteUser_then_ReturnOk() throws Exception {
+		//given
+		String username = "username";
+		DeleteUserRequest request = new DeleteUserRequest(username);
+
+		//mock
+		when(userService.delete(request)).thenReturn(mock(User.class));
+
+		//when & then
+		mockMvc.perform(post("/withdraw")
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(request))
+			).andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.resultCode", containsString("success")))
+			.andExpect(jsonPath("$.message", containsString("회원탈퇴가 완료되었습니다.")));
 	}
 
 }
