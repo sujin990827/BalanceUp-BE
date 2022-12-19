@@ -30,8 +30,8 @@ import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.DeleteUserRequest;
 import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
 import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
+import com.balanceup.keum.controller.dto.response.DeleteUserResponse;
 import com.balanceup.keum.controller.dto.response.UserResponse;
-import com.balanceup.keum.domain.User;
 import com.balanceup.keum.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -296,7 +296,7 @@ public class UserControllerTest {
 		DeleteUserRequest request = new DeleteUserRequest(username);
 
 		//mock
-		when(userService.delete(request)).thenReturn(mock(User.class));
+		when(userService.delete(request)).thenReturn(mock(DeleteUserResponse.class));
 
 		//when & then
 		mockMvc.perform(put("/withdraw")

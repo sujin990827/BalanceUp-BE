@@ -13,6 +13,7 @@ import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.DeleteUserRequest;
 import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
 import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
+import com.balanceup.keum.controller.dto.response.DeleteUserResponse;
 import com.balanceup.keum.controller.dto.response.UserResponse;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.RedisRepository;
@@ -72,10 +73,10 @@ public class UserService {
 	}
 
 	@Transactional
-	public User delete(DeleteUserRequest request) {
+	public DeleteUserResponse delete(DeleteUserRequest request) {
 		User user = getUserByUsername(request.getUsername());
 		user.withdraw();
-		return user;
+		return DeleteUserResponse.from(user);
 	}
 
 	private User getUserByUsername(String username) {
