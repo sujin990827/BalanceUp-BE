@@ -267,7 +267,7 @@ public class UserControllerTest {
 			.andExpect(jsonPath("$.resultCode", containsString("error")));
 	}
 
-	@DisplayName("[API][POST] 회원 탈퇴 테스트 (로그인한 유저는 잘못된 유저) - 실패")
+	@DisplayName("[API][PUT] 회원 탈퇴 테스트 (로그인한 유저는 잘못된 유저) - 실패")
 	@Test
 	void given_NonExistentUser_when_DeleteUser_then_ReturnBadRequest() throws Exception {
 		//given
@@ -278,7 +278,7 @@ public class UserControllerTest {
 		when(userService.delete(Mockito.any(DeleteUserRequest.class))).thenThrow(IllegalStateException.class);
 
 		//when & then
-		mockMvc.perform(post("/withdraw")
+		mockMvc.perform(put("/withdraw")
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
@@ -288,7 +288,7 @@ public class UserControllerTest {
 			.andExpect(jsonPath("$.resultCode", containsString("error")));
 	}
 
-	@DisplayName("[API][POST] 회원 탈퇴 테스트 - 성공")
+	@DisplayName("[API][PUT] 회원 탈퇴 테스트 - 성공")
 	@Test
 	void given_Username_when_DeleteUser_then_ReturnOk() throws Exception {
 		//given
@@ -299,7 +299,7 @@ public class UserControllerTest {
 		when(userService.delete(request)).thenReturn(mock(User.class));
 
 		//when & then
-		mockMvc.perform(post("/withdraw")
+		mockMvc.perform(put("/withdraw")
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
