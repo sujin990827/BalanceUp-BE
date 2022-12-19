@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -35,9 +36,6 @@ public class KakaoApi {
 	private final String PROVIDER_KAKAO = "kakao";
 	private final String GRANT_TYPE = "authorization_code";
 
-	@Value("${oauth.kakao.token-url}")
-	private String TOKEN_URL;
-
 	@Value("${oauth.kakao.userinfo}")
 	private String USER_INFO_URI;
 
@@ -53,7 +51,8 @@ public class KakaoApi {
 	private final BCryptPasswordEncoder encoder;
 
 	public Map<String, String> getUserInfo(String accessToken) {
-		ResponseEntity<String> response = getUserInfoResponse(setUserInfoHeaderByAccessToken(accessToken));
+		HttpHeaders headers = setHeaderByAccessToken(accessToken);
+		ResponseEntity<String> response = getUserInfo(headers);
 
 		JsonElement element = getElementByResponseBody(response);
 		JsonElement kakaoAcount = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
@@ -62,19 +61,26 @@ public class KakaoApi {
 		String username = kakaoAcount.getAsJsonObject().get("email").getAsString();
 
 		redisRepository.setValues(username, password, Duration.ofMillis(60 * 1000 * 30));
-		return getHeaderUserInfo(username);
+		return getHeaderByUserInfo(username);
 	}
 
+	@Transactional
 	public Map<String, String> join(String username, String nickname) {
 		String encodePassword = encoder.encode(isExpireInRedis(username));
 		userRepository.save(User.of(username, encodePassword, nickname, PROVIDER_KAKAO));
 		return makeTokens(username);
 	}
 
+	@Transactional(readOnly = true)
 	public Map<String, String> login(String username) {
 		userRepository.findByUsername(username)
 			.orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 username 입니다."));
 		return makeTokens(username);
+	}
+
+	private HttpEntity<MultiValueMap<String, String>> getKakaoTokenRequest(String authorize_code) {
+		return new HttpEntity<>(addParamByAuthorizeCode(authorize_code),
+			setContentTypeApplicationFormUrlencodedInHeader());
 	}
 
 	private MultiValueMap<String, String> addParamByAuthorizeCode(String authorize_code) {
@@ -86,36 +92,28 @@ public class KakaoApi {
 		return params;
 	}
 
-	private static HttpHeaders setHeaderContentTypeApplicationFormUrlencoded() {
+	private static HttpHeaders setContentTypeApplicationFormUrlencodedInHeader() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Content-type", MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 		return headers;
 	}
 
-	private HttpEntity<MultiValueMap<String, String>> getKakaoTokenRequest(String authorize_code) {
-		return new HttpEntity<>(addParamByAuthorizeCode(authorize_code),
-			setHeaderContentTypeApplicationFormUrlencoded());
-	}
-
-	private ResponseEntity<String> getKakaoTokenResponse(String authorize_code) {
-		return new RestTemplate().postForEntity(TOKEN_URL, getKakaoTokenRequest(authorize_code), String.class);
-	}
 
 	private JsonElement getElementByResponseBody(ResponseEntity<String> response) {
 		return new JsonParser().parse(response.getBody());
 	}
 
-	private ResponseEntity<String> getUserInfoResponse(HttpHeaders headers) {
+	private ResponseEntity<String> getUserInfo(HttpHeaders headers) {
 		return new RestTemplate().postForEntity(USER_INFO_URI, new HttpEntity<>(null, headers), String.class);
 	}
 
-	private static HttpHeaders setUserInfoHeaderByAccessToken(String accessToken) {
-		HttpHeaders headers = setHeaderContentTypeApplicationFormUrlencoded();
+	private static HttpHeaders setHeaderByAccessToken(String accessToken) {
+		HttpHeaders headers = setContentTypeApplicationFormUrlencodedInHeader();
 		headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 		return headers;
 	}
 
-	private Map<String, String> getHeaderUserInfo(String username) {
+	private Map<String, String> getHeaderByUserInfo(String username) {
 		Map<String, String> state = new HashMap<>();
 		state.put("username", username);
 		return getHeaderLoginState(username, state);

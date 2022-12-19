@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.balanceup.keum.controller.dto.request.UserJoinRequest;
-import com.balanceup.keum.controller.dto.request.UserLoginRequest;
+import com.balanceup.keum.controller.dto.request.user.UserJoinRequest;
+import com.balanceup.keum.controller.dto.request.user.UserLoginRequest;
 import com.balanceup.keum.controller.dto.response.Response;
 import com.balanceup.keum.controller.dto.TokenDto;
-import com.balanceup.keum.controller.dto.response.UserInfoResponse;
+import com.balanceup.keum.controller.dto.response.user.UserInfoResponse;
 import com.balanceup.keum.service.GoogleApi;
 import com.balanceup.keum.service.KakaoApi;
 
