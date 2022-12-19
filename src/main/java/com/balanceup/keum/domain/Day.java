@@ -19,7 +19,7 @@ public enum Day {
 
 	private final String value;
 
-	public static List<Day> getDayListByDaysColumn(String days) {
+	public static List<Day> of(String days) {
 		return getDayList(days);
 	}
 
@@ -40,6 +40,14 @@ public enum Day {
 			}
 		}
 		throw new IllegalArgumentException("잘못된 요일입니다.");
+	}
+
+	private static String from(List<Day> days) {
+		StringBuilder sb = new StringBuilder();
+		for (Day day : days) {
+			sb.append(day.value);
+		}
+		return sb.toString();
 	}
 
 }

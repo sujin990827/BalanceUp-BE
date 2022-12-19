@@ -2,8 +2,6 @@ package com.balanceup.keum.domain;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -21,7 +19,10 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
+
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -66,22 +67,33 @@ public class Routine {
 	@Column(name = "modified_at")
 	private Timestamp modifiedAt;
 
-	public static Routine of(String content, RoutineCategory routineCategory, boolean alarm) {
-		return new Routine(content, routineCategory, alarm);
+	public static Routine of(String routineTitle, RoutineCategory routineCategory, String days, boolean alarm, List<RoutineDay> routineDays, User user) {
+		return Routine.builder()
+			.routineTitle(routineTitle)
+			.routineCategory(routineCategory)
+			.days(days)
+			.alarm(alarm)
+			.routineDays(routineDays)
+			.user(user)
+			.build();
 	}
 
-	public Routine(String routineTitle, RoutineCategory routineCategory, boolean alarm) {
+	@Builder
+	private Routine(String routineTitle, RoutineCategory routineCategory, String days, boolean alarm, List<RoutineDay> routineDays, User user) {
 		this.routineTitle = routineTitle;
 		this.routineCategory = routineCategory;
+		this.days = days;
 		this.alarm = alarm;
-		this.routineDays = new ArrayList<>();
-		for (int day = 0; day < ROUTINE_MAX_DAY; day++) {
-			this.routineDays.add(RoutineDay.makeRoutineDay(new Date(), day));
-		}
+		this.routineDays = routineDays;
+		this.user = user;
+	}
+
+	public static Routine from(RoutineMakeRequest request, List<RoutineDay> routineDays, User user) {
+		return of(request.getRoutineTitle(), request.getRoutineCategory(),request.getDays(), request.isAlarm(), routineDays, user);
 	}
 
 	public List<Day> getDayList() {
-		return Day.getDayListByDaysColumn(this.days);
+		return Day.of(this.days);
 	}
 
 	@PrePersist
