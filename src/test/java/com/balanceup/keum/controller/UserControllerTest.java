@@ -27,11 +27,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.balanceup.keum.config.auth.PrincipalDetailService;
 import com.balanceup.keum.controller.dto.TokenDto;
-import com.balanceup.keum.controller.dto.request.DeleteUserRequest;
-import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
-import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
-import com.balanceup.keum.controller.dto.response.DeleteUserResponse;
-import com.balanceup.keum.controller.dto.response.UserResponse;
+import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
+import com.balanceup.keum.controller.dto.request.user.UserNicknameDuplicateRequest;
+import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
+import com.balanceup.keum.controller.dto.response.user.UserDeleteResponse;
+import com.balanceup.keum.controller.dto.response.user.UserResponse;
 import com.balanceup.keum.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -57,7 +57,7 @@ public class UserControllerTest {
 	void given_UserNicknameRequest_when_VerifyDuplicateNickname_then_ReturnOk() throws Exception {
 		//given
 		String nickname = "nickname";
-		DuplicateNicknameRequest request = new DuplicateNicknameRequest(nickname);
+		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname);
 
 		//mock
 		when(userService.duplicateNickname(request)).thenReturn(nickname);
@@ -81,10 +81,10 @@ public class UserControllerTest {
 	void given_DuplicateUserNicknameRequest_when_VerifyDuplicateNickname_then_ReturnBadRequest() throws Exception {
 		//given
 		String nickname = "nickname";
-		DuplicateNicknameRequest request = new DuplicateNicknameRequest(nickname);
+		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname);
 
 		//when
-		when(userService.duplicateNickname(Mockito.any(DuplicateNicknameRequest.class))).thenThrow(
+		when(userService.duplicateNickname(Mockito.any(UserNicknameDuplicateRequest.class))).thenThrow(
 			IllegalStateException.class);
 
 		//then
@@ -104,10 +104,10 @@ public class UserControllerTest {
 	void given_WrongNickname_when_VerifyDuplicateNickname_then_ReturnBadRequest() throws Exception {
 		//given
 		String nickname = "wrongNickname";
-		DuplicateNicknameRequest request = new DuplicateNicknameRequest(nickname);
+		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname);
 
 		//when
-		when(userService.duplicateNickname(Mockito.any(DuplicateNicknameRequest.class))).thenThrow(
+		when(userService.duplicateNickname(Mockito.any(UserNicknameDuplicateRequest.class))).thenThrow(
 			IllegalArgumentException.class);
 
 		//then
@@ -129,7 +129,7 @@ public class UserControllerTest {
 		String userName = "userName";
 		String nickname = "nickname";
 		String token = "jwtToken";
-		UpdateNicknameRequest request = new UpdateNicknameRequest(nickname, token);
+		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname, token);
 
 		//mock
 		when(userService.updateNickname(request, userName)).thenReturn(mock(UserResponse.class));
@@ -153,10 +153,10 @@ public class UserControllerTest {
 		//given
 		String nickname = "nickname";
 		String token = "jwtToken";
-		UpdateNicknameRequest request = new UpdateNicknameRequest(nickname, token);
+		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname, token);
 
 		//mock
-		when(userService.updateNickname(Mockito.any(UpdateNicknameRequest.class), anyString())).thenThrow(
+		when(userService.updateNickname(Mockito.any(UserNicknameUpdateRequest.class), anyString())).thenThrow(
 			IllegalArgumentException.class);
 
 		//when & then
@@ -178,10 +178,10 @@ public class UserControllerTest {
 		//given
 		String nickname = "nickname";
 		String token = "jwtToken";
-		UpdateNicknameRequest request = new UpdateNicknameRequest(nickname, token);
+		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname, token);
 
 		//mock
-		when(userService.updateNickname(Mockito.any(UpdateNicknameRequest.class), anyString())).thenThrow(
+		when(userService.updateNickname(Mockito.any(UserNicknameUpdateRequest.class), anyString())).thenThrow(
 			IllegalArgumentException.class);
 
 		//when & then
@@ -272,10 +272,10 @@ public class UserControllerTest {
 	void given_NonExistentUser_when_DeleteUser_then_ReturnBadRequest() throws Exception {
 		//given
 		String username = "username";
-		DeleteUserRequest request = new DeleteUserRequest(username);
+		UserDeleteRequest request = new UserDeleteRequest(username);
 
 		//mock
-		when(userService.delete(Mockito.any(DeleteUserRequest.class))).thenThrow(IllegalStateException.class);
+		when(userService.delete(Mockito.any(UserDeleteRequest.class))).thenThrow(IllegalStateException.class);
 
 		//when & then
 		mockMvc.perform(put("/withdraw")
@@ -293,10 +293,10 @@ public class UserControllerTest {
 	void given_Username_when_DeleteUser_then_ReturnOk() throws Exception {
 		//given
 		String username = "username";
-		DeleteUserRequest request = new DeleteUserRequest(username);
+		UserDeleteRequest request = new UserDeleteRequest(username);
 
 		//mock
-		when(userService.delete(request)).thenReturn(mock(DeleteUserResponse.class));
+		when(userService.delete(request)).thenReturn(mock(UserDeleteResponse.class));
 
 		//when & then
 		mockMvc.perform(put("/withdraw")

@@ -5,16 +5,17 @@ import static java.util.Objects.*;
 import java.util.Optional;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.TokenDto;
-import com.balanceup.keum.controller.dto.request.DeleteUserRequest;
-import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
-import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
-import com.balanceup.keum.controller.dto.response.DeleteUserResponse;
-import com.balanceup.keum.controller.dto.response.UserResponse;
+import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
+import com.balanceup.keum.controller.dto.request.user.UserNicknameDuplicateRequest;
+import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
+import com.balanceup.keum.controller.dto.response.user.UserDeleteResponse;
+import com.balanceup.keum.controller.dto.response.user.UserResponse;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.RedisRepository;
 import com.balanceup.keum.repository.UserRepository;
@@ -32,7 +33,7 @@ public class UserService {
 	private final RedisRepository redisRepository;
 
 	@Transactional
-	public UserResponse updateNickname(UpdateNicknameRequest dto, String username) {
+	public UserResponse updateNickname(UserNicknameUpdateRequest dto, String username) {
 		String nickname = dto.getNickname();
 
 		if (userRepository.findByNickname(nickname).isPresent()) {
@@ -47,7 +48,7 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public String duplicateNickname(DuplicateNicknameRequest dto) {
+	public String duplicateNickname(UserNicknameDuplicateRequest dto) {
 		isValidNickname(dto.getNickname());
 
 		if (userRepository.findByNickname(dto.getNickname()).isPresent()) {
@@ -73,10 +74,10 @@ public class UserService {
 	}
 
 	@Transactional
-	public DeleteUserResponse delete(DeleteUserRequest request) {
+	public UserDeleteResponse delete(UserDeleteRequest request) {
 		User user = getUserByUsername(request.getUsername());
 		user.withdraw();
-		return DeleteUserResponse.from(user);
+		return UserDeleteResponse.from(user);
 	}
 
 	private User getUserByUsername(String username) {
@@ -106,6 +107,12 @@ public class UserService {
 		if (!nickname.matches("^[a-zA-Z0-9가-힣]*$")) {
 			throw new IllegalArgumentException("닉네임은 영어, 한글, 숫자만 가능합니다.");
 		}
+	}
+
+	public User findUserByUsername(String username) {
+		return userRepository
+			.findByUsername(username)
+			.orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 username 입니다."));
 	}
 
 }

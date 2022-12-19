@@ -20,9 +20,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.TokenDto;
-import com.balanceup.keum.controller.dto.request.DeleteUserRequest;
-import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
-import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
+import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
+import com.balanceup.keum.controller.dto.request.user.UserNicknameDuplicateRequest;
+import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.RedisRepository;
 import com.balanceup.keum.repository.UserRepository;
@@ -48,7 +48,7 @@ public class UserServiceTest {
 		//given
 		User user = User.of("username", "password", "dog", "google");
 		String nickname1 = "dog";
-		DuplicateNicknameRequest request = new DuplicateNicknameRequest(nickname1);
+		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname1);
 
 		//mock
 		Mockito.when(userRepository.findByNickname(nickname1)).thenReturn(Optional.of(user));
@@ -64,7 +64,7 @@ public class UserServiceTest {
 	void given_NotDuplicateNickname_when_VerifyDuplicateNickname_then_DoesNotThrow() {
 		//given
 		String nickname1 = "dog";
-		DuplicateNicknameRequest request = new DuplicateNicknameRequest(nickname1);
+		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname1);
 
 		//mock
 		Mockito.when(userRepository.findByNickname(nickname1)).thenReturn(Optional.empty());
@@ -78,7 +78,7 @@ public class UserServiceTest {
 	void given_NicknameNull_when_DuplicateNickname_then_ThrowException() {
 		//given
 		String nickname = null;
-		DuplicateNicknameRequest request = new DuplicateNicknameRequest(nickname);
+		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname);
 
 		//when & then
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
@@ -91,7 +91,7 @@ public class UserServiceTest {
 	void given_WrongNicknameLength_when_DuplicateNickname_then_ThrowException() {
 		//given
 		String nickname = "12345678910";
-		DuplicateNicknameRequest request = new DuplicateNicknameRequest(nickname);
+		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname);
 
 		//when & then
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
@@ -105,8 +105,8 @@ public class UserServiceTest {
 		//given
 		String nickname1 = "       ";
 		String nickname2 = "!@#!@$!@";
-		DuplicateNicknameRequest request1 = new DuplicateNicknameRequest(nickname1);
-		DuplicateNicknameRequest request2 = new DuplicateNicknameRequest(nickname2);
+		UserNicknameDuplicateRequest request1 = new UserNicknameDuplicateRequest(nickname1);
+		UserNicknameDuplicateRequest request2 = new UserNicknameDuplicateRequest(nickname2);
 
 		//when & then
 		IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
@@ -123,7 +123,7 @@ public class UserServiceTest {
 	void given_DuplicateNickname_when_NicknameUpdate_then_ThrowException() {
 		//given
 		String nickname = "dog";
-		UpdateNicknameRequest request = new UpdateNicknameRequest(nickname, "");
+		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname, "");
 		User user = User.of("username", "password", nickname, "google");
 
 		//mock
@@ -140,7 +140,7 @@ public class UserServiceTest {
 	void given_Nickname_when_NicknameUpdate_then_DoesNotThrow() {
 		//given
 		String nickname = "dog";
-		UpdateNicknameRequest request = new UpdateNicknameRequest(nickname, "");
+		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname, "");
 		User user = User.of("username", "password", nickname, "google");
 
 		//mock
@@ -155,7 +155,7 @@ public class UserServiceTest {
 	@Test
 	void given_NonExistentUser_when_DeleteUser_then_Throw() {
 		//given
-		DeleteUserRequest request = new DeleteUserRequest();
+		UserDeleteRequest request = new UserDeleteRequest();
 		String username = "username";
 		request.setUsername(username);
 
@@ -171,7 +171,7 @@ public class UserServiceTest {
 	@Test
 	void given_UserInfo_when_DeleteUser_then_DoesNotThrow() {
 		//given
-		DeleteUserRequest request = new DeleteUserRequest();
+		UserDeleteRequest request = new UserDeleteRequest();
 		String username = "username";
 		request.setUsername(username);
 

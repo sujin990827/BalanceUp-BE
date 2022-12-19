@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.balanceup.keum.config.auth.PrincipalDetailService;
 import com.balanceup.keum.controller.dto.TokenDto;
-import com.balanceup.keum.controller.dto.request.DeleteUserRequest;
-import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
-import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
+import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
+import com.balanceup.keum.controller.dto.request.user.UserNicknameDuplicateRequest;
+import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.controller.dto.response.Response;
 import com.balanceup.keum.service.UserService;
 
@@ -28,13 +28,13 @@ public class UserController {
 	private final PrincipalDetailService principalDetailService;
 
 	@PostMapping("/user/nickname")
-	public ResponseEntity<?> duplicateNickname(@RequestBody DuplicateNicknameRequest dto) {
+	public ResponseEntity<?> duplicateNickname(@RequestBody UserNicknameDuplicateRequest dto) {
 		return new ResponseEntity<>(getSuccessResponse("닉네임 중복 확인 성공", userService.duplicateNickname(dto)),
 			HttpStatus.OK);
 	}
 
 	@PutMapping("/user/nickname")
-	public ResponseEntity<?> updateNickname(@RequestBody UpdateNicknameRequest dto) {
+	public ResponseEntity<?> updateNickname(@RequestBody UserNicknameUpdateRequest dto) {
 		String username = getUserNameBySecurityContextHolder();
 		return new ResponseEntity<>(getSuccessResponse("닉네임 업데이트 성공", userService.updateNickname(dto, username)),
 			HttpStatus.OK);
@@ -51,7 +51,7 @@ public class UserController {
 	}
 
 	@PutMapping("/withdraw")
-	public ResponseEntity<?> deleteUser(DeleteUserRequest request) {
+	public ResponseEntity<?> deleteUser(UserDeleteRequest request) {
 		return new ResponseEntity<>(
 			getSuccessResponse("회원탈퇴가 완료되었습니다.", userService.delete(request)), HttpStatus.OK);
 	}
