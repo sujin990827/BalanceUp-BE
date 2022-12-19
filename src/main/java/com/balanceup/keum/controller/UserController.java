@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.balanceup.keum.config.auth.PrincipalDetailService;
 import com.balanceup.keum.controller.dto.TokenDto;
+import com.balanceup.keum.controller.dto.request.DeleteUserRequest;
 import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
 import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
 import com.balanceup.keum.controller.dto.response.Response;
@@ -49,7 +50,14 @@ public class UserController {
 			HttpStatus.CREATED);
 	}
 
+	@PostMapping("/withdraw")
+	public ResponseEntity<?> deleteUser(DeleteUserRequest request) {
+		return new ResponseEntity<>(
+			getSuccessResponse("회원탈퇴가 완료되었습니다.", userService.delete(request)), HttpStatus.OK);
+	}
+
 	private static String getUserNameBySecurityContextHolder() {
+
 		return SecurityContextHolder.getContext().getAuthentication().getName();
 	}
 
