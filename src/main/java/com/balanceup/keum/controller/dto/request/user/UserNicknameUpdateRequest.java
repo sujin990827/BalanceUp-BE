@@ -1,4 +1,4 @@
-package com.balanceup.keum.controller.dto.request;
+package com.balanceup.keum.controller.dto.request.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class UpdateNicknameRequest {
+public class UserNicknameUpdateRequest {
 
 	String nickname;
 	String token;

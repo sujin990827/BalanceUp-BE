@@ -1,4 +1,4 @@
-package com.balanceup.keum.controller.dto.response;
+package com.balanceup.keum.controller.dto.response.user;
 
 import java.util.Map;
 
