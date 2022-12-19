@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.TokenDto;
+import com.balanceup.keum.controller.dto.request.DeleteUserRequest;
 import com.balanceup.keum.controller.dto.request.DuplicateNicknameRequest;
 import com.balanceup.keum.controller.dto.request.UpdateNicknameRequest;
 import com.balanceup.keum.domain.User;
@@ -148,6 +149,37 @@ public class UserServiceTest {
 
 		//when & then
 		assertDoesNotThrow(() -> userService.updateNickname(request, "username"));
+	}
+
+	@DisplayName("회원탈퇴 테스트 - 로그인한 사용자가 정확하지 않은 경우")
+	@Test
+	void given_NonExistentUser_when_DeleteUser_then_Throw() {
+		//given
+		DeleteUserRequest request = new DeleteUserRequest();
+		String username = "username";
+		request.setUsername(username);
+
+		//when
+		when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+		//then
+		IllegalStateException e = assertThrows(IllegalStateException.class, () -> userService.delete(request));
+		assertEquals("사용자가 정확하지 않습니다.", e.getMessage());
+	}
+
+	@DisplayName("회원 탈퇴 테스트")
+	@Test
+	void given_UserInfo_when_DeleteUser_then_DoesNotThrow() {
+		//given
+		DeleteUserRequest request = new DeleteUserRequest();
+		String username = "username";
+		request.setUsername(username);
+
+		//when
+		when(userRepository.findByUsername(username)).thenReturn(Optional.of(mock(User.class)));
+
+		//then
+		assertDoesNotThrow(()-> userService.delete(request));
 	}
 
 	@DisplayName("Refresh 토큰 테스트 - 토큰 만료시")
