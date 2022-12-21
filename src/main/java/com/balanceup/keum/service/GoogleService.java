@@ -3,17 +3,19 @@ package com.balanceup.keum.service;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.balanceup.keum.config.util.JwtTokenUtil;
@@ -25,34 +27,25 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
-public class GoogleApi {
+public class GoogleService {
 
-	private final String PROVIDER_GOOGLE = "google";
-	private final String GRANT_TYPE = "authorization_code";
-
-	@Value("${oauth.google.token-url}")
-	private String TOKEN_URL;
-	@Value("${oauth.google.userinfo}")
-	private String USER_INFO_URI;
-	@Value("${oauth.google.client-id}")
-	private String CLIENT_ID;
-	@Value("${oauth.google.secret}")
-	private String CLIENT_SECRET;
-	@Value("${oauth.google.redirect}")
-	private String REDIRECT_URI;
+	private final String PROVIDER = "google";
 
 	private final UserRepository userRepository;
 	private final JwtTokenUtil jwtTokenUtil;
 	private final RedisRepository redisRepository;
 	private final BCryptPasswordEncoder encoder;
 
+	@Value("${oauth.google.userinfo}")
+	private String USER_INFO_URI;
+
 	public Map<String, String> getUserInfo(String accessToken) {
-		JsonElement element = getElementByResponseBody(getResponseByAccessToken(accessToken));
+		ResponseEntity<String> response = getUserInfoToResponseEntity(accessToken);
+
+		JsonElement element = getElementByResponseBody(response);
 
 		String password = element.getAsJsonObject().get("id").getAsString();
 		String username = element.getAsJsonObject().get("email").getAsString();
@@ -62,68 +55,62 @@ public class GoogleApi {
 		return getHeaderUserInfo(username);
 	}
 
+	@Transactional
 	public Map<String, String> join(String username, String nickname) {
 		String encodePassword = encoder.encode(isExpireInRedis(username));
-		userRepository.save(User.of(username, encodePassword, nickname, PROVIDER_GOOGLE));
+
+		userRepository.save(User.of(username, encodePassword, nickname, PROVIDER));
+
 		return makeTokens(username);
 	}
 
+	@Transactional(readOnly = true)
 	public Map<String, String> login(String username) {
-		userRepository.findByUsername(username)
-			.orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 username 입니다."));
+		if (userRepository.findByUsername(username).isEmpty()) {
+			throw new UsernameNotFoundException("존재하지 않는 username 입니다.");
+		}
+
 		return makeTokens(username);
 	}
 
-	private MultiValueMap<String, String> addParamByAuthorizeCode(String authorize_code) {
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("grant_type", GRANT_TYPE);
-		params.add("client_id", CLIENT_ID);
-		params.add("client_secret", CLIENT_SECRET);
-		params.add("redirect_uri", REDIRECT_URI);
-		params.add("code", authorize_code);
-		return params;
-	}
-
-	private HttpEntity<MultiValueMap<String, String>> getOAuthTokenRequest(String authorize_code) {
-		return new HttpEntity<>(addParamByAuthorizeCode(authorize_code),
-			null);
-	}
-
-	private ResponseEntity<String> getResponseByAccessToken(String accessToken) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Authorization", "Bearer " + accessToken);
-
-		HttpEntity request = new HttpEntity(headers);
-
+	private ResponseEntity<String> getUserInfoToResponseEntity(String jwtAccessToken) {
 		return new RestTemplate().exchange(
 			USER_INFO_URI,
 			HttpMethod.GET,
-			request,
-			String.class
-		);
+			new HttpEntity<>(setHeaderByJwtAccessToken(jwtAccessToken)),
+			String.class);
 	}
 
-	private ResponseEntity<String> getGoogleTokenResponse(String authorize_code) {
-		return new RestTemplate().postForEntity(TOKEN_URL, getOAuthTokenRequest(authorize_code), String.class);
+	private static HttpHeaders setHeaderByJwtAccessToken(String jwtAccessToken) {
+		HttpHeaders headers = new HttpHeaders();
+
+		headers.add("Content-type", MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+		headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + jwtAccessToken);
+
+		return headers;
 	}
 
 	private JsonElement getElementByResponseBody(ResponseEntity<String> response) {
-		System.out.println(response.getBody());
-		return new JsonParser().parse(response.getBody());
+		return new JsonParser()
+			.parse(Objects.requireNonNull(response.getBody()));
 	}
 
 	private Map<String, String> getHeaderUserInfo(String username) {
-		Map<String, String> state = new HashMap<>();
+		Map<String, String> state = new ConcurrentHashMap<>();
+
 		state.put("username", username);
+
 		return getHeaderLoginState(username, state);
 	}
 
 	private Map<String, String> getHeaderLoginState(String username, Map<String, String> state) {
-		state.put("provider", PROVIDER_GOOGLE);
+		state.put("provider", PROVIDER);
+
 		if (userRepository.findByUsername(username).isPresent()) {
 			state.put("login", "sign-in");
 			return state;
 		}
+
 		state.put("login", "sign-up");
 		return state;
 	}
@@ -131,16 +118,24 @@ public class GoogleApi {
 	private Map<String, String> putTokensMap(String username) {
 		Map<String, String> tokens = new HashMap<>();
 		TokenDto token = jwtTokenUtil.generateToken(username);
+
+		setTokens(tokens, token);
+
+		return tokens;
+	}
+
+	private static void setTokens(Map<String, String> tokens, TokenDto token) {
 		tokens.put("accessToken", token.getToken());
 		tokens.put("refreshToken", token.getRefreshToken());
-		return tokens;
 	}
 
 	private String isExpireInRedis(String username) {
 		String rawPassword = redisRepository.getValues(username);
+
 		if (rawPassword == null) {
 			throw new IllegalStateException("Password is expire in Redis");
 		}
+
 		return rawPassword;
 	}
 

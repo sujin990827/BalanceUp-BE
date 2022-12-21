@@ -12,8 +12,8 @@ import com.balanceup.keum.controller.dto.request.user.UserLoginRequest;
 import com.balanceup.keum.controller.dto.response.Response;
 import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.response.user.UserInfoResponse;
-import com.balanceup.keum.service.GoogleApi;
-import com.balanceup.keum.service.KakaoApi;
+import com.balanceup.keum.service.GoogleService;
+import com.balanceup.keum.service.KakaoService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +23,14 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class OauthController {
 
-	private final KakaoApi kakaoAPI;
-	private final GoogleApi googleAPI;
+	private final KakaoService kakaoService;
+	private final GoogleService googleService;
 
 	@GetMapping("/login/kakao")
 	public ResponseEntity<?> getKakaoUserInfo(@RequestParam String accessToken) {
 		return new ResponseEntity<>(
 			Response.of("success", "유저 정보 받아오기 성공",
-				new UserInfoResponse(kakaoAPI.getUserInfo(accessToken))), HttpStatus.OK
+				new UserInfoResponse(kakaoService.getUserInfo(accessToken))), HttpStatus.OK
 		);
 	}
 
@@ -39,7 +39,7 @@ public class OauthController {
 		isKakaoLogin(request.getProvider());
 		return new ResponseEntity<>(
 			Response.of("success", "회원가입 성공",
-				new TokenDto(kakaoAPI.join(request.getUsername(), request.getNickname()))), HttpStatus.CREATED);
+				new TokenDto(kakaoService.join(request.getUsername(), request.getNickname()))), HttpStatus.CREATED);
 	}
 
 	@GetMapping("/auth/sign-in/kakao")
@@ -48,14 +48,14 @@ public class OauthController {
 
 		return new ResponseEntity<>(
 			Response.of("success", "로그인 성공",
-				new TokenDto(kakaoAPI.login(request.getUsername()))), HttpStatus.OK);
+				new TokenDto(kakaoService.login(request.getUsername()))), HttpStatus.OK);
 	}
 
 	@GetMapping("/login/google")
 	public ResponseEntity<?> getGoogleUserInfo(@RequestParam String accessToken) {
 		return new ResponseEntity<>(
 			Response.of("success", "유저 정보 받아오기 성공",
-				new UserInfoResponse(googleAPI.getUserInfo(accessToken))), HttpStatus.OK
+				new UserInfoResponse(googleService.getUserInfo(accessToken))), HttpStatus.OK
 		);
 	}
 
@@ -64,7 +64,7 @@ public class OauthController {
 		isGoogleLogin(request.getProvider());
 		return new ResponseEntity<>(
 			Response.of("success", "회원가입 성공",
-				new TokenDto(googleAPI.join(request.getUsername(), request.getNickname()))), HttpStatus.CREATED);
+				new TokenDto(googleService.join(request.getUsername(), request.getNickname()))), HttpStatus.CREATED);
 	}
 
 	@GetMapping("/auth/sign-in/google")
@@ -73,7 +73,7 @@ public class OauthController {
 
 		return new ResponseEntity<>(
 			Response.of("success", "로그인 성공",
-				new TokenDto(googleAPI.login(request.getUsername()))), HttpStatus.OK);
+				new TokenDto(googleService.login(request.getUsername()))), HttpStatus.OK);
 	}
 
 	private static void isKakaoLogin(String provider) {
