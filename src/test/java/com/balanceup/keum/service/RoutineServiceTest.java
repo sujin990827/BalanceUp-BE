@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
+import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
 import com.balanceup.keum.domain.Routine;
 import com.balanceup.keum.domain.RoutineCategory;
 import com.balanceup.keum.domain.User;
@@ -34,7 +36,7 @@ public class RoutineServiceTest {
 	@InjectMocks
 	private RoutineService routineService;
 
-	@DisplayName("루틴 생성 테스트 - 성공")
+	@DisplayName("루틴 생성 테스트")
 	@Test
 	void given_RoutineInfo_when_makeRoutine_then_DoesNotThrow() {
 		//given
@@ -49,7 +51,7 @@ public class RoutineServiceTest {
 		assertDoesNotThrow(() -> routineService.makeRoutine(request));
 	}
 
-	@DisplayName("루틴 생성 테스트 (로그인한 유저가 정확하지 않을때) - 실패")
+	@DisplayName("루틴 생성 테스트 (로그인한 유저가 정확하지 않을때)")
 	@Test
 	void given_NonExistentUser_when_makeRoutine_then_ThrowUsernameNotFoundException() {
 		//given
@@ -63,7 +65,7 @@ public class RoutineServiceTest {
 			() -> routineService.makeRoutine(request));
 	}
 
-	@DisplayName("루틴 생성 테스트 (Routine Day List 값이 저장이 안될때) - 실패")
+	@DisplayName("루틴 생성 테스트 (Routine Day List 값이 저장이 안될때)")
 	@Test
 	void given_NotValidRoutineInfo_when_makeRoutine_then_ThrowIllegalArgumentException() {
 		//given
@@ -78,7 +80,7 @@ public class RoutineServiceTest {
 			() -> routineService.makeRoutine(request));
 	}
 
-	@DisplayName("루틴 생성 테스트 (Routine 값이 저장이 안될때) - 실패")
+	@DisplayName("루틴 생성 테스트 (Routine 값이 저장이 안될때)")
 	@Test
 	void given_NotValidRoutine_when_makeRoutine_then_ThrowIllegalArgumentException() {
 		//given
@@ -94,12 +96,146 @@ public class RoutineServiceTest {
 			() -> routineService.makeRoutine(request));
 	}
 
+	@DisplayName("루틴 생성 테스트 (루틴명이 입력되지 않았을 때)")
+	@Test
+	void given_NotValidRoutineTitle_when_makeRoutine_then_ThrowIllegalArgumentException() {
+		//given
+		RoutineMakeRequest request = getRoutineMakeRequestFixture();
+		request.setRoutineTitle(null);
+
+		//when
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+
+		//then
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+			() -> routineService.makeRoutine(request));
+		assertEquals("루틴명이 입력되지 않았습니다.", e.getMessage());
+	}
+
+	@DisplayName("루틴 생성 테스트 (루틴 카테고리가 입력되지 않았을 때)")
+	@Test
+	void given_NotValidRoutineCategory_when_makeRoutine_then_ThrowIllegalArgumentException() {
+		//given
+		RoutineMakeRequest request = getRoutineMakeRequestFixture();
+		request.setRoutineCategory(null);
+
+		//when
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+
+		//then
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+			() -> routineService.makeRoutine(request));
+		assertEquals("카테고리가 입력되지 않았습니다.", e.getMessage());
+	}
+
+	@DisplayName("루틴 생성 테스트 (진행 요일이 입력되지 않았을 때)")
+	@Test
+	void given_NotValidRoutineDays_when_makeRoutine_then_ThrowIllegalArgumentException() {
+		//given
+		RoutineMakeRequest request = getRoutineMakeRequestFixture();
+		request.setDays(null);
+
+		//when
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+
+		//then
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+			() -> routineService.makeRoutine(request));
+		assertEquals("진행 요일이 입력되지 않았습니다.", e.getMessage());
+	}
+
+	@DisplayName("루틴 수정 테스트")
+	@Test
+	void given_RoutineUpdateInfo_when_UpdateRoutine_then_DoesNotThrow() {
+		//given
+		RoutineUpdateRequest request = getRoutineUpdateRequestFixture();
+
+		//when
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
+
+		//then
+		assertDoesNotThrow(() -> routineService.updateRoutine(request));
+	}
+
+	@DisplayName("루틴 수정 테스트 (username 이 정확하지 않을때)")
+	@Test
+	void given_NotValidUsername_when_UpdateRoutine_then_ThrowUsernameNotFoundException() {
+		//given
+		RoutineUpdateRequest request = getRoutineUpdateRequestFixture();
+
+		//when
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenThrow(UsernameNotFoundException.class);
+
+		//then
+		assertThrows(UsernameNotFoundException.class,
+			() -> routineService.updateRoutine(request));
+	}
+
+	@DisplayName("루틴 수정 테스트 (루틴 id가 존재하지 않을때)")
+	@Test
+	void given_NotValidRoutineId_when_UpdateRoutine_then_ThrowIllegalArgumentException() {
+		//given
+		RoutineUpdateRequest request = getRoutineUpdateRequestFixture();
+
+		//when
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.empty());
+
+		//then
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+			() -> routineService.updateRoutine(request));
+		assertEquals("이미 삭제된 루틴 id 이거나, 잘못된 id 입니다.", e.getMessage());
+	}
+
+	@DisplayName("루틴 수정 테스트 (루틴명이 존재하지 않을때)")
+	@Test
+	void given_NotValidRoutineTitle_when_UpdateRoutine_then_ThrowIllegalArgumentException() {
+		//given
+		RoutineUpdateRequest request = getRoutineUpdateRequestFixture();
+		request.setRoutineTitle(null);
+
+		//when
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+
+		//then
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+			() -> routineService.updateRoutine(request));
+		assertEquals("루틴명이 입력되지 않았습니다.", e.getMessage());
+	}
+
+	@DisplayName("루틴 수정 테스트 (진행요일이 입력되지 않았을 때)")
+	@Test
+	void given_NotValidRoutineDays_when_UpdateRoutine_then_ThrowIllegalArgumentException() {
+		//given
+		RoutineUpdateRequest request = getRoutineUpdateRequestFixture();
+		request.setDays(null);
+
+		//when
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+
+		//then
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+			() -> routineService.updateRoutine(request));
+		assertEquals("진행 요일이 입력되지 않았습니다.", e.getMessage());
+	}
+
+	private RoutineUpdateRequest getRoutineUpdateRequestFixture() {
+		RoutineUpdateRequest request = new RoutineUpdateRequest();
+		request.setUsername("username");
+		request.setRoutineId(1L);
+		request.setRoutineTitle("title");
+		request.setDays("월화수");
+		request.setAlarmTime("09:00");
+		return request;
+	}
+
 	private static RoutineMakeRequest getRoutineMakeRequestFixture() {
 		RoutineMakeRequest request = new RoutineMakeRequest();
 		request.setUsername("username");
 		request.setRoutineTitle("title");
 		request.setDays("월화수");
-		request.setAlarm(true);
+		request.setAlarmTime("09:00");
 		request.setRoutineCategory(RoutineCategory.EXERCISE);
 		return request;
 	}
