@@ -390,3 +390,4 @@ build/
 !**/src/test/**/build/
 
 **/src/main/resources/application.yml
+**/*.yml
