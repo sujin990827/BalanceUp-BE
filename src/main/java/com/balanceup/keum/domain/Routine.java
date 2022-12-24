@@ -20,6 +20,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
+import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -51,9 +52,10 @@ public class Routine {
 	@OneToMany(fetch = FetchType.EAGER)
 	List<RoutineDay> routineDays;
 
-	private boolean completed = false;
+	private Boolean completed = false;
 
-	private boolean alarm;
+	@Column(name = "alarm_time")
+	private String alarmTime;
 
 	@Enumerated(EnumType.STRING)
 	private RoutineCategory routineCategory;
@@ -67,29 +69,55 @@ public class Routine {
 	@Column(name = "modified_at")
 	private Timestamp modifiedAt;
 
-	public static Routine of(String routineTitle, RoutineCategory routineCategory, String days, boolean alarm, List<RoutineDay> routineDays, User user) {
+	@Builder
+	private Routine(String routineTitle, RoutineCategory routineCategory, String days, String alarmTime,
+		List<RoutineDay> routineDays, User user) {
+		this.routineTitle = routineTitle;
+		this.routineCategory = routineCategory;
+		this.days = days;
+		this.routineDays = routineDays;
+		this.user = user;
+
+		if (isValidTime(alarmTime)) {
+			this.alarmTime = alarmTime;
+		}
+	}
+
+	private boolean isValidTime(String alarmTime) {
+		return alarmTime != null && alarmTime.length() >= 4;
+	}
+
+	public void update(RoutineUpdateRequest request) {
+		this.routineTitle = request.getRoutineTitle();
+		this.days = request.getDays();
+
+		if (isValidTime(alarmTime)) {
+			this.alarmTime = request.getAlarmTime();
+			return;
+		}
+		this.alarmTime = null;
+	}
+
+	public static Routine of(String routineTitle, RoutineCategory routineCategory, String days, String alarmTime,
+		List<RoutineDay> routineDays, User user) {
 		return Routine.builder()
 			.routineTitle(routineTitle)
 			.routineCategory(routineCategory)
 			.days(days)
-			.alarm(alarm)
+			.alarmTime(alarmTime)
 			.routineDays(routineDays)
 			.user(user)
 			.build();
 	}
 
-	@Builder
-	private Routine(String routineTitle, RoutineCategory routineCategory, String days, boolean alarm, List<RoutineDay> routineDays, User user) {
-		this.routineTitle = routineTitle;
-		this.routineCategory = routineCategory;
-		this.days = days;
-		this.alarm = alarm;
-		this.routineDays = routineDays;
-		this.user = user;
-	}
-
-	public static Routine from(RoutineMakeRequest request, List<RoutineDay> routineDays, User user) {
-		return of(request.getRoutineTitle(), request.getRoutineCategory(),request.getDays(), request.isAlarm(), routineDays, user);
+	public static Routine ofRoutineInfo(RoutineMakeRequest request, List<RoutineDay> routineDays, User user) {
+		return of(
+			request.getRoutineTitle(),
+			request.getRoutineCategory(),
+			request.getDays(),
+			request.getAlarmTime(),
+			routineDays,
+			user);
 	}
 
 	public List<Day> getDayList() {
@@ -105,4 +133,5 @@ public class Routine {
 	private void modifiedAt() {
 		this.modifiedAt = Timestamp.from(Instant.now());
 	}
+
 }

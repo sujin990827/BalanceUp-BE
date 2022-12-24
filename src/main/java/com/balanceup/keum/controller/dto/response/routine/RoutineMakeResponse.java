@@ -17,7 +17,7 @@ public class RoutineMakeResponse {
 	private String username;
 	private String routineTitle;
 	private RoutineCategory routineCategory;
-	private boolean alarm;
+	private String alarmTime;
 	private String days;
 
 	public static RoutineMakeResponse from(String username, Routine routine) {
@@ -26,7 +26,7 @@ public class RoutineMakeResponse {
 			.routineTitle(routine.getRoutineTitle())
 			.routineCategory(routine.getRoutineCategory())
 			.days(routine.getDays())
-			.alarm(routine.isAlarm())
+			.alarmTime(routine.getAlarmTime())
 			.build();
 	}
 

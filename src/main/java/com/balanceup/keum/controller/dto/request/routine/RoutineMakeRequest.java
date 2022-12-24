@@ -14,6 +14,7 @@ public class RoutineMakeRequest {
 	private String username;
 	private String routineTitle;
 	private RoutineCategory routineCategory;
-	private boolean alarm;
 	private String days;
+	private String alarmTime;
+
 }
