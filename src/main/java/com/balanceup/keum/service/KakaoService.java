@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -36,9 +35,6 @@ public class KakaoService {
 	private final JwtTokenUtil jwtTokenUtil;
 	private final RedisRepository redisRepository;
 	private final BCryptPasswordEncoder encoder;
-
-	@Value("${oauth.kakao.userinfo}")
-	private String USER_INFO_URI;
 
 	public Map<String, String> getUserInfo(String accessToken) {
 		ResponseEntity<String> response = getUserInfoToResponseEntity(accessToken);
@@ -74,7 +70,7 @@ public class KakaoService {
 
 	private ResponseEntity<String> getUserInfoToResponseEntity(String accessToken) {
 		return new RestTemplate().postForEntity(
-			USER_INFO_URI,
+			"https://kapi.kakao.com/v2/user/me",
 			new HttpEntity<>(null, setHeaderByJwtAccessToken(accessToken)),
 			String.class);
 	}

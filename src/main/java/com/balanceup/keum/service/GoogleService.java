@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -38,9 +37,6 @@ public class GoogleService {
 	private final JwtTokenUtil jwtTokenUtil;
 	private final RedisRepository redisRepository;
 	private final BCryptPasswordEncoder encoder;
-
-	@Value("${oauth.google.userinfo}")
-	private String USER_INFO_URI;
 
 	public Map<String, String> getUserInfo(String accessToken) {
 		ResponseEntity<String> response = getUserInfoToResponseEntity(accessToken);
@@ -75,7 +71,7 @@ public class GoogleService {
 
 	private ResponseEntity<String> getUserInfoToResponseEntity(String jwtAccessToken) {
 		return new RestTemplate().exchange(
-			USER_INFO_URI,
+			"https://www.googleapis.com/oauth2/v1/userinfo",
 			HttpMethod.GET,
 			new HttpEntity<>(setHeaderByJwtAccessToken(jwtAccessToken)),
 			String.class);
