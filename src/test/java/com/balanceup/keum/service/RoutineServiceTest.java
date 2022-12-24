@@ -42,8 +42,8 @@ public class RoutineServiceTest {
 
 		//when
 		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
-		doReturn(mock(List.class)).when(routineDayService).makeRoutineDays();
-		doReturn(mock(Routine.class)).when(routineRepository).save(any());
+		when(routineDayService.makeRoutineDays()).thenReturn(mock(List.class));
+		when(routineRepository.save(any())).thenReturn(mock(Routine.class));
 
 		//then
 		assertDoesNotThrow(() -> routineService.makeRoutine(request));
@@ -80,14 +80,14 @@ public class RoutineServiceTest {
 
 	@DisplayName("루틴 생성 테스트 (Routine 값이 저장이 안될때) - 실패")
 	@Test
-	void given_NotValidRoutineDayList_when_makeRoutine_then_ThrowIllegalArgumentException() {
+	void given_NotValidRoutine_when_makeRoutine_then_ThrowIllegalArgumentException() {
 		//given
 		RoutineMakeRequest request = getRoutineMakeRequestFixture();
 
 		//when
 		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
 		doReturn(mock(List.class)).when(routineDayService).makeRoutineDays();
-		doThrow(IllegalArgumentException.class).when(routineRepository).save(any());
+		doThrow(IllegalArgumentException.class).when(routineRepository).save(any(Routine.class));
 
 		//then
 		assertThrows(IllegalArgumentException.class,
