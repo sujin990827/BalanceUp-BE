@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -49,7 +50,7 @@ public class Routine {
 	private String routineTitle;
 
 	@JoinColumn(name = "routine_id")
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	List<RoutineDay> routineDays;
 
 	private Boolean completed = false;
