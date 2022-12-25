@@ -1,13 +1,13 @@
 package com.balanceup.keum.service;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
 import com.balanceup.keum.controller.dto.response.routine.RoutineMakeResponse;
+import com.balanceup.keum.controller.dto.response.routine.RoutineResponse;
 import com.balanceup.keum.domain.Routine;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.RoutineRepository;
@@ -28,8 +28,8 @@ public class RoutineService {
 
 		isValidMakeRequest(request);
 
-		Routine routine = routineRepository.save(
-			Routine.ofRoutineInfo(request, routineDayService.makeRoutineDays(), user));
+		Routine routine = routineRepository
+			.save(Routine.ofRoutineInfo(request, routineDayService.makeRoutineDays(), user));
 
 		return RoutineMakeResponse.from(user.getUsername(), routine);
 	}
@@ -37,15 +37,21 @@ public class RoutineService {
 	@Transactional
 	public void updateRoutine(RoutineUpdateRequest request) {
 		userService.findUserByUsername(request.getUsername());
-		Optional<Routine> routine = routineRepository.findById(request.getRoutineId());
+		Routine routine = routineRepository.findById(request.getRoutineId())
+			.orElseThrow(() -> new IllegalArgumentException("이미 삭제된 루틴 id 이거나, 잘못된 id 입니다."));
 
 		isValidUpdateRequest(request);
 
-		if (routine.isEmpty()) {
-			throw new IllegalArgumentException("이미 삭제된 루틴 id 이거나, 잘못된 id 입니다.");
-		}
+		routine.update(request);
+	}
 
-		routine.get().update(request);
+	@Transactional(readOnly = true)
+	public RoutineResponse inquireRoutine(RoutineInquireRequest request) {
+		User user = userService.findUserByUsername(request.getUsername());
+		Routine routine = routineRepository.findById(request.getRoutineId())
+			.orElseThrow(() -> new IllegalArgumentException("이미 삭제된 루틴 id 이거나, 잘못된 id 입니다."));
+
+		return RoutineResponse.from(routine, user);
 	}
 
 	private static void isValidUpdateRequest(RoutineUpdateRequest request) {
