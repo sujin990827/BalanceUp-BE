@@ -51,7 +51,7 @@ public class UserController {
 	}
 
 	@PutMapping("/withdraw")
-	public ResponseEntity<?> deleteUser(UserDeleteRequest request) {
+	public ResponseEntity<?> deleteUser(@RequestBody UserDeleteRequest request) {
 		return new ResponseEntity<>(
 			getSuccessResponse("회원탈퇴가 완료되었습니다.", userService.delete(request)), HttpStatus.OK);
 	}
