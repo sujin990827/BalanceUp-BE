@@ -71,8 +71,7 @@ public class UserControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.resultCode", containsString("success")))
-			.andExpect(jsonPath("$.message", containsString("닉네임 중복 확인 성공")))
-			.andExpect(jsonPath("$.body", containsString(nickname)));
+			.andExpect(jsonPath("$.message", containsString("닉네임 중복 확인 성공")));
 	}
 
 	@DisplayName("[API][POST] 닉네임 중복확인 테스트(닉네임 중복) - 실패")
