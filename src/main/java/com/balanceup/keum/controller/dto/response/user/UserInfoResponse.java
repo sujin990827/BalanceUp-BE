@@ -3,10 +3,14 @@ package com.balanceup.keum.controller.dto.response.user;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class UserInfoResponse {
 
 	private String username;

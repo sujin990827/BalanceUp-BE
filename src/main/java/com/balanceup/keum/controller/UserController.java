@@ -28,20 +28,20 @@ public class UserController {
 	private final PrincipalDetailService principalDetailService;
 
 	@PostMapping("/user/nickname")
-	public ResponseEntity<?> duplicateNickname(@RequestBody UserNicknameDuplicateRequest dto) {
-		return new ResponseEntity<>(getSuccessResponse("닉네임 중복 확인 성공", userService.duplicateNickname(dto)),
+	public ResponseEntity<?> duplicateNickname(@RequestBody UserNicknameDuplicateRequest request) {
+		return new ResponseEntity<>(getSuccessResponse("닉네임 중복 확인 성공", userService.duplicateNickname(request)),
 			HttpStatus.OK);
 	}
 
 	@PutMapping("/user/nickname")
-	public ResponseEntity<?> updateNickname(@RequestBody UserNicknameUpdateRequest dto) {
+	public ResponseEntity<?> updateNickname(@RequestBody UserNicknameUpdateRequest request) {
 		String username = getUserNameBySecurityContextHolder();
-		return new ResponseEntity<>(getSuccessResponse("닉네임 업데이트 성공", userService.updateNickname(dto, username)),
+		return new ResponseEntity<>(getSuccessResponse("닉네임 업데이트 성공", userService.updateNickname(request, username)),
 			HttpStatus.OK);
 	}
 
-	@GetMapping("/auth/refresh")
-	public ResponseEntity<?> getRefreshToken(TokenDto tokenDto) {
+	@PostMapping("/auth/refresh")
+	public ResponseEntity<?> getRefreshToken(@RequestBody TokenDto tokenDto) {
 		String username = getUserNameBySecurityContextHolder();
 		UserDetails userDetails = principalDetailService.loadUserByUsername(username);
 
@@ -53,11 +53,11 @@ public class UserController {
 	@PutMapping("/withdraw")
 	public ResponseEntity<?> deleteUser(@RequestBody UserDeleteRequest request) {
 		return new ResponseEntity<>(
-			getSuccessResponse("회원탈퇴가 완료되었습니다.", userService.delete(request)), HttpStatus.OK);
+			getSuccessResponse("회원탈퇴가 완료되었습니다.", userService.delete(request)),
+			HttpStatus.OK);
 	}
 
 	private static String getUserNameBySecurityContextHolder() {
-
 		return SecurityContextHolder.getContext().getAuthentication().getName();
 	}
 

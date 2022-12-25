@@ -211,7 +211,7 @@ public class UserControllerTest {
 		when(userService.reIssue(request, details)).thenReturn(mock(TokenDto.class));
 
 		//when & then
-		mockMvc.perform(get("/auth/refresh")
+		mockMvc.perform(post("/auth/refresh")
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
@@ -234,7 +234,7 @@ public class UserControllerTest {
 			.thenThrow(UsernameNotFoundException.class);
 
 		//when & then
-		mockMvc.perform(get("/auth/refresh")
+		mockMvc.perform(post("/auth/refresh")
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
@@ -257,7 +257,7 @@ public class UserControllerTest {
 			.thenThrow(IllegalStateException.class);
 
 		//when & then
-		mockMvc.perform(get("/auth/refresh")
+		mockMvc.perform(post("/auth/refresh")
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
