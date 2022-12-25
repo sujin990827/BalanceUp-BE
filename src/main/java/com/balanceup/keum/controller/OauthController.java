@@ -3,14 +3,15 @@ package com.balanceup.keum.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.user.UserJoinRequest;
 import com.balanceup.keum.controller.dto.request.user.UserLoginRequest;
 import com.balanceup.keum.controller.dto.response.Response;
-import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.response.user.UserInfoResponse;
 import com.balanceup.keum.service.GoogleService;
 import com.balanceup.keum.service.KakaoService;
@@ -34,7 +35,7 @@ public class OauthController {
 		);
 	}
 
-	@GetMapping("/auth/sign-up/kakao")
+	@PostMapping("/auth/sign-up/kakao")
 	public ResponseEntity<?> kakaoJoin(@RequestBody UserJoinRequest request) {
 		isKakaoLogin(request.getProvider());
 		return new ResponseEntity<>(
@@ -42,7 +43,7 @@ public class OauthController {
 				new TokenDto(kakaoService.join(request.getUsername(), request.getNickname()))), HttpStatus.CREATED);
 	}
 
-	@GetMapping("/auth/sign-in/kakao")
+	@PostMapping("/auth/sign-in/kakao")
 	public ResponseEntity<?> kakaoLogin(@RequestBody UserLoginRequest request) {
 		isKakaoLogin(request.getProvider());
 
@@ -51,7 +52,7 @@ public class OauthController {
 				new TokenDto(kakaoService.login(request.getUsername()))), HttpStatus.OK);
 	}
 
-	@GetMapping("/login/google")
+	@PostMapping("/login/google")
 	public ResponseEntity<?> getGoogleUserInfo(@RequestParam String accessToken) {
 		return new ResponseEntity<>(
 			Response.of("success", "유저 정보 받아오기 성공",
@@ -59,7 +60,7 @@ public class OauthController {
 		);
 	}
 
-	@GetMapping("/auth/sign-up/google")
+	@PostMapping("/auth/sign-up/google")
 	public ResponseEntity<?> googleJoin(@RequestBody UserJoinRequest request) {
 		isGoogleLogin(request.getProvider());
 		return new ResponseEntity<>(
@@ -67,7 +68,7 @@ public class OauthController {
 				new TokenDto(googleService.join(request.getUsername(), request.getNickname()))), HttpStatus.CREATED);
 	}
 
-	@GetMapping("/auth/sign-in/google")
+	@PostMapping("/auth/sign-in/google")
 	public ResponseEntity<?> googleLogin(@RequestBody UserLoginRequest request) {
 		isGoogleLogin(request.getProvider());
 
