@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
@@ -266,6 +267,51 @@ public class RoutineServiceTest {
 			() -> routineService.inquireRoutine(request));
 	}
 
+	@DisplayName("루틴 삭제 테스트")
+	@Test
+	void given_RoutineDeleteRequest_when_DeleteRoutine_then_DoesNotThrow() {
+		//given
+		RoutineDeleteRequest request = getRoutineDeleteRequestFixture();
+
+		//when
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
+		doNothing().when(routineRepository).delete(any(Routine.class));
+
+		//then
+		assertDoesNotThrow(() -> routineService.deleteRoutine(request));
+	}
+
+	@DisplayName("루틴 삭제 테스트(username 이 정확하지 않을 때)")
+	@Test
+	void given_InvalidUsername_when_DeleteRoutine_then_ThrowUsernameNotFoundException() {
+		//given
+		RoutineDeleteRequest request = getRoutineDeleteRequestFixture();
+
+		//when
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenThrow(UsernameNotFoundException.class);
+
+		//then
+		assertThrows(UsernameNotFoundException.class,
+			() -> routineService.deleteRoutine(request));
+	}
+
+	@DisplayName("루틴 삭제 테스트(루틴 id가 정확하지 않을 때)")
+	@Test
+	void given_InvalidRoutineID_when_DeleteRoutine_then_ThrowIllegalArgumentException() {
+		//given
+		RoutineDeleteRequest request = getRoutineDeleteRequestFixture();
+
+		//when
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.empty());
+
+		//then
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+			() -> routineService.deleteRoutine(request));
+		assertEquals("이미 삭제된 루틴 id 이거나, 잘못된 id 입니다.", e.getMessage());
+	}
+
 	private RoutineUpdateRequest getRoutineUpdateRequestFixture() {
 		RoutineUpdateRequest request = new RoutineUpdateRequest();
 		request.setUsername("username");
@@ -292,4 +338,12 @@ public class RoutineServiceTest {
 		request.setRoutineId(1L);
 		return request;
 	}
+
+	private RoutineDeleteRequest getRoutineDeleteRequestFixture() {
+		RoutineDeleteRequest request = new RoutineDeleteRequest();
+		request.setUsername("username");
+		request.setRoutineId(1L);
+		return request;
+	}
+
 }
