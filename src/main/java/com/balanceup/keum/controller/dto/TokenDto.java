@@ -13,8 +13,8 @@ import lombok.Setter;
 @Setter
 public class TokenDto {
 
-	String token;
-	String refreshToken;
+	private String token;
+	private String refreshToken;
 
 	public TokenDto(Map<String, String> tokens) {
 		this.token = tokens.get("accessToken");

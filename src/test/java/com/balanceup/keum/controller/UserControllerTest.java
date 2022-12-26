@@ -7,9 +7,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.util.List;
-import java.util.Map;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -27,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.balanceup.keum.config.auth.PrincipalDetailService;
 import com.balanceup.keum.controller.dto.TokenDto;
+import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
 import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameDuplicateRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
@@ -195,19 +192,16 @@ public class UserControllerTest {
 			.andExpect(jsonPath("$.resultCode", containsString("error")));
 	}
 
-	@DisplayName("[API][GET] 토큰 재발급 테스트 - 성공 ")
+	@DisplayName("[API][GET] 토큰 재발급 테스트 ")
 	@Test
 	@WithMockUser
 	void given_TokenDtoAndUserDetails_when_ReIssueToken_then_ReturnCreated() throws Exception {
 		//given
-		TokenDto request = new TokenDto(Map.of("accessToken", "accessToken", "refreshToken", "refreshToken"));
-		UserDetails details =
-			new org.springframework.security.core.userdetails.User("username", "password",
-				List.of(new SimpleGrantedAuthority("ROLE_USER")));
+		ReIssueRequest request = getReIssueRequestFixture();
 
 		//mock
-		when(principalDetailService.loadUserByUsername(details.getUsername())).thenReturn(mock(UserDetails.class));
-		when(userService.reIssue(request, details)).thenReturn(mock(TokenDto.class));
+		when(principalDetailService.loadUserByUsername(request.getUsername())).thenReturn(mock(UserDetails.class));
+		when(userService.reIssue(request, mock(UserDetails.class))).thenReturn(mock(TokenDto.class));
 
 		//when & then
 		mockMvc.perform(post("/auth/refresh")
@@ -226,10 +220,9 @@ public class UserControllerTest {
 	@WithMockUser
 	void given_TokenDtoAndUserDetails_when_ReIssueToken_then_ReturnBadRequest() throws Exception {
 		//given
-		TokenDto request = new TokenDto(Map.of("accessToken", "accessToken", "refreshToken", "refreshToken"));
-
+		ReIssueRequest request = getReIssueRequestFixture();
 		//mock
-		when(principalDetailService.loadUserByUsername(anyString()))
+		when(principalDetailService.loadUserByUsername(request.getUsername()))
 			.thenThrow(UsernameNotFoundException.class);
 
 		//when & then
@@ -248,11 +241,10 @@ public class UserControllerTest {
 	@WithMockUser
 	void given_WrongToken_when_ReIssueToken_then_ReturnBadRequest() throws Exception {
 		//given
-		TokenDto request = new TokenDto(Map.of("accessToken", "accessToken", "refreshToken", "refreshToken"));
-
+		ReIssueRequest request = getReIssueRequestFixture();
 		//mock
-		when(principalDetailService.loadUserByUsername(anyString())).thenReturn(mock(UserDetails.class));
-		when(userService.reIssue(Mockito.any(TokenDto.class), Mockito.any(UserDetails.class)))
+		when(principalDetailService.loadUserByUsername(request.getUsername())).thenReturn(mock(UserDetails.class));
+		when(userService.reIssue(Mockito.any(ReIssueRequest.class), Mockito.any(UserDetails.class)))
 			.thenThrow(IllegalStateException.class);
 
 		//when & then
@@ -307,6 +299,14 @@ public class UserControllerTest {
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.resultCode", containsString("success")))
 			.andExpect(jsonPath("$.message", containsString("회원탈퇴가 완료되었습니다.")));
+	}
+
+	private static ReIssueRequest getReIssueRequestFixture() {
+		ReIssueRequest request = new ReIssueRequest();
+		request.setUsername("username");
+		request.setToken("accessToken");
+		request.setRefreshToken("refreshToken");
+		return request;
 	}
 
 }

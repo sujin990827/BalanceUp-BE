@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.TokenDto;
+import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
 import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameDuplicateRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
@@ -58,15 +59,15 @@ public class UserService {
 		return dto.getNickname();
 	}
 
-	public TokenDto reIssue(TokenDto dto, UserDetails userDetails) {
-		if (!jwtTokenUtil.validateToken(dto.getRefreshToken(), userDetails)) {
+	public TokenDto reIssue(ReIssueRequest request, UserDetails userDetails) {
+		if (!jwtTokenUtil.validateToken(request.getRefreshToken(), userDetails)) {
 			throw new IllegalStateException("Refresh 토큰이 만료되었습니다.");
 		}
 
 		String username = userDetails.getUsername();
 		String refreshTokenInRedis = redisRepository.getValues(username);
 
-		if (refreshTokenInRedis == null || !isNormalRefreshToken(dto, refreshTokenInRedis)) {
+		if (refreshTokenInRedis == null || !isNormalRefreshToken(request, refreshTokenInRedis)) {
 			throw new IllegalStateException("만료되거나 존재하지 않는 RefreshToken 입니다. 다시 로그인을 시도해주세요");
 		}
 
@@ -91,7 +92,7 @@ public class UserService {
 		return optionalUser.get();
 	}
 
-	private static boolean isNormalRefreshToken(TokenDto dto, String refreshTokenInRedis) {
+	private static boolean isNormalRefreshToken(ReIssueRequest dto, String refreshTokenInRedis) {
 		return refreshTokenInRedis.equals(dto.getRefreshToken());
 	}
 

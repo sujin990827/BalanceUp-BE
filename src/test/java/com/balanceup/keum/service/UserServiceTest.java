@@ -1,11 +1,9 @@
 package com.balanceup.keum.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.TokenDto;
+import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
 import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameDuplicateRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
@@ -179,24 +178,24 @@ public class UserServiceTest {
 		when(userRepository.findByUsername(username)).thenReturn(Optional.of(mock(User.class)));
 
 		//then
-		assertDoesNotThrow(()-> userService.delete(request));
+		assertDoesNotThrow(() -> userService.delete(request));
 	}
 
 	@DisplayName("Refresh 토큰 테스트 - 토큰 만료시")
 	@Test
 	void given_WrongRefreshToken_when_ReIssue_then_ThrowException() {
 		//given
-		TokenDto dto = new TokenDto(Map.of("accessToken", "accessToken", "refreshToken", "refreshToken"));
+		ReIssueRequest request = getReIssueRequestFixture();
 		UserDetails details =
 			new org.springframework.security.core.userdetails.User("username", "password",
 				List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
 		//mock
-		when(jwtTokenUtil.validateToken(dto.getRefreshToken(), details)).thenReturn(false);
+		when(jwtTokenUtil.validateToken(request.getRefreshToken(), details)).thenReturn(false);
 
 		//when & then
 		IllegalStateException e = assertThrows(IllegalStateException.class,
-			() -> userService.reIssue(dto, details));
+			() -> userService.reIssue(request, details));
 		assertEquals("Refresh 토큰이 만료되었습니다.", e.getMessage());
 	}
 
@@ -204,18 +203,18 @@ public class UserServiceTest {
 	@Test
 	void given_NotNormalToken_when_ReIssue_then_ThrowException() {
 		//given
-		TokenDto dto = new TokenDto(Map.of("accessToken", "accessToken", "refreshToken", "refreshToken"));
+		ReIssueRequest request = getReIssueRequestFixture();
 		UserDetails details =
 			new org.springframework.security.core.userdetails.User("username", "password",
 				List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
 		//mock
-		when(jwtTokenUtil.validateToken(dto.getRefreshToken(), details)).thenReturn(true);
-		when(redisRepository.getValues(details.getUsername())).thenReturn("notNormalToken");
+		when(jwtTokenUtil.validateToken(request.getRefreshToken(), details)).thenReturn(true);
+		when(redisRepository.getValues(request.getUsername())).thenReturn("notNormalToken");
 
 		//when & then
 		IllegalStateException e = assertThrows(IllegalStateException.class,
-			() -> userService.reIssue(dto, details));
+			() -> userService.reIssue(request, details));
 		assertEquals("만료되거나 존재하지 않는 RefreshToken 입니다. 다시 로그인을 시도해주세요", e.getMessage());
 	}
 
@@ -223,18 +222,26 @@ public class UserServiceTest {
 	@Test
 	void given_NormalToken_when_ReIssue_then_DoesNotThrow() {
 		//given
-		TokenDto dto = new TokenDto(Map.of("accessToken", "accessToken", "refreshToken", "refreshToken"));
+		ReIssueRequest request = getReIssueRequestFixture();
 		UserDetails details =
 			new org.springframework.security.core.userdetails.User("username", "password",
 				List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
 		//mock
-		when(jwtTokenUtil.validateToken(dto.getRefreshToken(), details)).thenReturn(true);
-		when(redisRepository.getValues(details.getUsername())).thenReturn(dto.getRefreshToken());
-		when(jwtTokenUtil.generateToken(details.getUsername())).thenReturn(any(TokenDto.class), eq(dto));
+		when(jwtTokenUtil.validateToken(request.getRefreshToken(), details)).thenReturn(true);
+		when(redisRepository.getValues(details.getUsername())).thenReturn(request.getRefreshToken());
+		when(jwtTokenUtil.generateToken(details.getUsername())).thenReturn(mock(TokenDto.class));
 
 		//when & then
-		assertDoesNotThrow(() -> userService.reIssue(dto, details));
+		assertDoesNotThrow(() -> userService.reIssue(request, details));
+	}
+
+	private static ReIssueRequest getReIssueRequestFixture() {
+		ReIssueRequest request = new ReIssueRequest();
+		request.setUsername("username");
+		request.setToken("accessToken");
+		request.setRefreshToken("refreshToken");
+		return request;
 	}
 
 }

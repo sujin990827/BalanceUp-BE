@@ -4,14 +4,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.balanceup.keum.config.auth.PrincipalDetailService;
-import com.balanceup.keum.controller.dto.TokenDto;
+import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
 import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameDuplicateRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
@@ -41,12 +40,11 @@ public class UserController {
 	}
 
 	@PostMapping("/auth/refresh")
-	public ResponseEntity<?> getRefreshToken(@RequestBody TokenDto tokenDto) {
-		String username = getUserNameBySecurityContextHolder();
-		UserDetails userDetails = principalDetailService.loadUserByUsername(username);
+	public ResponseEntity<?> getRefreshToken(@RequestBody ReIssueRequest request) {
+		UserDetails userDetails = principalDetailService.loadUserByUsername(request.getUsername());
 
 		return new ResponseEntity<>(
-			getSuccessResponse("AccessToken 재발급이 완료되었습니다.", userService.reIssue(tokenDto, userDetails)),
+			getSuccessResponse("AccessToken 재발급이 완료되었습니다.", userService.reIssue(request, userDetails)),
 			HttpStatus.CREATED);
 	}
 
