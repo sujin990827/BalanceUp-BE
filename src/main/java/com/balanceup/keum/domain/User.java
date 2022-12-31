@@ -44,6 +44,8 @@ public class User {
 
 	private String provider;
 
+	private Integer rp;
+
 	@Column(name = "create_at")
 	private Timestamp createAt;
 
@@ -85,5 +87,9 @@ public class User {
 
 	public void withdraw() {
 		this.deletedAt = Timestamp.from(Instant.now());
+	}
+
+	public void earnRp(int rp) {
+		this.rp += rp;
 	}
 }
