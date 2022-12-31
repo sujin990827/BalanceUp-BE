@@ -1,11 +1,15 @@
 package com.balanceup.keum.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
+import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
 import com.balanceup.keum.controller.dto.response.routine.RoutineMakeResponse;
 import com.balanceup.keum.controller.dto.response.routine.RoutineResponse;
@@ -19,6 +23,9 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class RoutineService {
 
+	public static final String INVALID_ROUTINE_ID_MESSAGE = "이미 삭제된 루틴 id 이거나, 잘못된 id 입니다.";
+	private final int ROUTINE_MAXIMUM = 4;
+
 	private final UserService userService;
 	private final RoutineDayService routineDayService;
 	private final RoutineRepository routineRepository;
@@ -28,6 +35,7 @@ public class RoutineService {
 		User user = userService.findUserByUsername(request.getUsername());
 
 		isValidMakeRequest(request);
+		isMaximumRoutine(user);
 
 		Routine routine = routineRepository
 			.save(Routine.ofRoutineInfo(request, routineDayService.makeRoutineDays(), user));
@@ -38,8 +46,7 @@ public class RoutineService {
 	@Transactional
 	public RoutineResponse updateRoutine(RoutineUpdateRequest request) {
 		User user = userService.findUserByUsername(request.getUsername());
-		Routine routine = routineRepository.findById(request.getRoutineId())
-			.orElseThrow(() -> new IllegalArgumentException("이미 삭제된 루틴 id 이거나, 잘못된 id 입니다."));
+		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
 
 		isValidUpdateRequest(request);
 
@@ -51,8 +58,8 @@ public class RoutineService {
 	@Transactional(readOnly = true)
 	public RoutineResponse inquireRoutine(RoutineInquireRequest request) {
 		User user = userService.findUserByUsername(request.getUsername());
-		Routine routine = routineRepository.findById(request.getRoutineId())
-			.orElseThrow(() -> new IllegalArgumentException("이미 삭제된 루틴 id 이거나, 잘못된 id 입니다."));
+		Optional<Routine> routineOptional = routineRepository.findById(request.getRoutineId());
+		Routine routine = getRoutineByOptional(routineOptional);
 
 		return RoutineResponse.from(routine, user);
 	}
@@ -60,10 +67,17 @@ public class RoutineService {
 	@Transactional
 	public void deleteRoutine(RoutineDeleteRequest request) {
 		userService.findUserByUsername(request.getUsername());
-		Routine routine = routineRepository.findById(request.getRoutineId())
-			.orElseThrow(() -> new IllegalArgumentException("이미 삭제된 루틴 id 이거나, 잘못된 id 입니다."));
+		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
 
 		routineRepository.delete(routine);
+	}
+
+	public void progressRoutine(RoutineProgressRequest request) {
+		User user = userService.findUserByUsername(request.getUsername());
+		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
+
+		routineDayService.progressDailyRoutine(routine);
+		user.earnRp(1);
 	}
 
 	private static void isValidUpdateRequest(RoutineUpdateRequest request) {
@@ -92,6 +106,20 @@ public class RoutineService {
 
 	private static boolean isNull(String s) {
 		return s == null || s.length() == 0;
+	}
+
+	private static Routine getRoutineByOptional(Optional<Routine> routineOptional) {
+		if (routineOptional.isEmpty()) {
+			throw new IllegalArgumentException(INVALID_ROUTINE_ID_MESSAGE);
+		}
+		return routineOptional.get();
+	}
+
+	private void isMaximumRoutine(User user) {
+		List<Routine> routineList = routineRepository.findAllByUser(user);
+		if (routineList.size() >= ROUTINE_MAXIMUM) {
+			throw new IllegalStateException("루틴 갯수는 " + ROUTINE_MAXIMUM + "개를 초과할 수 없습니다.");
+		}
 	}
 
 }

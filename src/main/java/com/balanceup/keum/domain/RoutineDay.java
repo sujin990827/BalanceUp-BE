@@ -8,8 +8,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @NoArgsConstructor
 @Entity
 public class RoutineDay {
@@ -20,7 +22,7 @@ public class RoutineDay {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private Long id;
 
-	private Timestamp day;
+	private Date day;
 
 	private boolean completed = false;
 
@@ -28,8 +30,16 @@ public class RoutineDay {
 		this.day = day;
 	}
 
+	public boolean isToday(Date today) {
+		return this.day.equals(today);
+	}
+
 	public static RoutineDay makeRoutineDay(Date today, int routineDayOrder) {
 		return new RoutineDay(new Timestamp(today.getTime() + (DAY_MILLISECOND * routineDayOrder)));
+	}
+
+	public void progress() {
+		this.completed = true;
 	}
 
 }

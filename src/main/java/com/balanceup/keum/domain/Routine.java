@@ -135,4 +135,7 @@ public class Routine {
 		this.modifiedAt = Timestamp.from(Instant.now());
 	}
 
+	public void completeRoutine() {
+		this.completed = true;
+	}
 }
