@@ -333,6 +333,21 @@ public class RoutineServiceTest {
 		assertEquals("이미 삭제된 루틴 id 이거나, 잘못된 id 입니다.", e.getMessage());
 	}
 
+	@DisplayName("루틴 진행 테스트 - 하루 루틴만 완료")
+	@Test
+	void given_RoutineProgressRequest_when_ProgressRoutine_then_DoesNotThrow() {
+		//given
+		RoutineProgressRequest request = getRoutineProgressRequestFixture();
+
+		//when
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
+		doNothing().when(routineDayService).progressDailyRoutine(any(Routine.class));
+
+		//then
+		assertDoesNotThrow(() -> routineService.progressRoutine(request));
+	}
+
 	private RoutineUpdateRequest getRoutineUpdateRequestFixture() {
 		RoutineUpdateRequest request = new RoutineUpdateRequest();
 		request.setUsername("username");
