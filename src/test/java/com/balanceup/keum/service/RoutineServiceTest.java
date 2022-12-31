@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
+import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
 import com.balanceup.keum.domain.Routine;
 import com.balanceup.keum.domain.RoutineCategory;
@@ -46,6 +47,7 @@ public class RoutineServiceTest {
 
 		//when
 		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(routineRepository.findAllByUser(any(User.class))).thenReturn(mock(List.class));
 		when(routineDayService.makeRoutineDays()).thenReturn(mock(List.class));
 		when(routineRepository.save(any())).thenReturn(mock(Routine.class));
 
@@ -67,6 +69,23 @@ public class RoutineServiceTest {
 			() -> routineService.makeRoutine(request));
 	}
 
+	@DisplayName("루틴 생성 테스트 (루틴이 4개 이상일 때)")
+	@Test
+	void given_OverRoutineNumbers_when_makeRoutine_then_ThrowIllegalStateException() {
+		//given
+		RoutineMakeRequest request = getRoutineMakeRequestFixture();
+		Routine routine = Routine.ofRoutineInfo(request, List.of(), User.of("username", "1234", "asdf", "asd"));
+
+		//when
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(routineRepository.findAllByUser(any(User.class))).thenReturn(List.of(routine, routine, routine, routine));
+		//then
+		IllegalStateException e = assertThrows(IllegalStateException.class,
+			() -> routineService.makeRoutine(request));
+		assertEquals("루틴 갯수는 4개를 초과할 수 없습니다.",
+			e.getMessage());
+	}
+
 	@DisplayName("루틴 생성 테스트 (Routine Day List 값이 저장이 안될때)")
 	@Test
 	void given_InvalidRoutineInfo_when_makeRoutine_then_ThrowIllegalArgumentException() {
@@ -75,6 +94,7 @@ public class RoutineServiceTest {
 
 		//when
 		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(routineRepository.findAllByUser(any(User.class))).thenReturn(mock(List.class));
 		doThrow(IllegalArgumentException.class).when(routineDayService).makeRoutineDays();
 
 		//then
@@ -90,6 +110,7 @@ public class RoutineServiceTest {
 
 		//when
 		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(routineRepository.findAllByUser(any(User.class))).thenReturn(mock(List.class));
 		doReturn(mock(List.class)).when(routineDayService).makeRoutineDays();
 		doThrow(IllegalArgumentException.class).when(routineRepository).save(any(Routine.class));
 
@@ -341,6 +362,13 @@ public class RoutineServiceTest {
 
 	private RoutineDeleteRequest getRoutineDeleteRequestFixture() {
 		RoutineDeleteRequest request = new RoutineDeleteRequest();
+		request.setUsername("username");
+		request.setRoutineId(1L);
+		return request;
+	}
+
+	private RoutineProgressRequest getRoutineProgressRequestFixture() {
+		RoutineProgressRequest request = new RoutineProgressRequest();
 		request.setUsername("username");
 		request.setRoutineId(1L);
 		return request;
