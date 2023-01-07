@@ -9,15 +9,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum Day {
-	SUNDAY("일"),
-	MONDAY("월"),
-	TUESDAY("화"),
-	WEDNESDAY("수"),
-	THURSDAY("목"),
-	FRIDAY("금"),
-	SATURDAY("토");
+	SUNDAY("일", 1),
+	MONDAY("월", 2),
+	TUESDAY("화", 3),
+	WEDNESDAY("수", 4),
+	THURSDAY("목", 5),
+	FRIDAY("금", 6),
+	SATURDAY("토", 7);
 
 	private final String value;
+	private final int dayOfTheWeek;
 
 	public static List<Day> of(String days) {
 		return getDayList(days);

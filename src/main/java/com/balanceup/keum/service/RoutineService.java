@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
@@ -72,12 +73,22 @@ public class RoutineService {
 		routineRepository.delete(routine);
 	}
 
+	@Transactional
 	public void progressRoutine(RoutineProgressRequest request) {
 		User user = userService.findUserByUsername(request.getUsername());
 		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
 
 		routineDayService.progressDailyRoutine(routine);
 		user.earnRp(1);
+	}
+
+	@Transactional(readOnly = true)
+	public void allDoneRoutine(RoutineAllDoneRequest request) {
+		User user = userService.findUserByUsername(request.getUsername());
+		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
+
+		routine.isAllDone();
+		user.earnRp(20);
 	}
 
 	private static void isValidUpdateRequest(RoutineUpdateRequest request) {

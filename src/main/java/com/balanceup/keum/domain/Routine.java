@@ -2,6 +2,7 @@ package com.balanceup.keum.domain;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -125,6 +126,38 @@ public class Routine {
 		return Day.of(this.days);
 	}
 
+	public void completeRoutine() {
+		this.completed = true;
+	}
+
+	public void isAllDone() {
+		List<Day> daysList = Day.of(days);
+		int count = getCompleteCount(daysList);
+
+		if (count != daysList.size() * 2) {
+			throw new IllegalStateException("루틴이 완료되지 않았습니다.");
+		}
+	}
+
+	private int getCompleteCount(List<Day> daysList) {
+		int count = 0;
+
+		for (RoutineDay routineDay : routineDays) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(routineDay.getDay());
+			int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+
+			for (Day day : daysList) {
+				if (dayOfWeek == day.getDayOfTheWeek() && this.completed) {
+					count++;
+					break;
+				}
+			}
+
+		}
+		return count;
+	}
+
 	@PrePersist
 	private void createdAt() {
 		this.createAt = Timestamp.from(Instant.now());
@@ -135,7 +168,4 @@ public class Routine {
 		this.modifiedAt = Timestamp.from(Instant.now());
 	}
 
-	public void completeRoutine() {
-		this.completed = true;
-	}
 }

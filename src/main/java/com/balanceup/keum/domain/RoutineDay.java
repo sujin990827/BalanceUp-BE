@@ -1,6 +1,7 @@
 package com.balanceup.keum.domain;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -30,8 +31,9 @@ public class RoutineDay {
 		this.day = day;
 	}
 
-	public boolean isToday(Date today) {
-		return this.day.equals(today);
+	public boolean isToday(String today) {
+		String routineDay = new SimpleDateFormat("dd-MM-yyyy").format(this.day);
+		return routineDay.equals(today);
 	}
 
 	public static RoutineDay makeRoutineDay(Date today, int routineDayOrder) {

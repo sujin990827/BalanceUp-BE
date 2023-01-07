@@ -1,5 +1,6 @@
 package com.balanceup.keum.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +29,7 @@ public class RoutineDayService {
 
 	public void progressDailyRoutine(Routine routine) {
 		List<RoutineDay> routineDays = routine.getRoutineDays();
-		Date today = new Date();
+		String today = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
 
 		for (RoutineDay routineDay : routineDays) {
 			if (routineDay.isToday(today)) {
