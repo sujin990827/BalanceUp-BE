@@ -364,6 +364,7 @@ public class RoutineServiceTest {
 		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mockUser);
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mockRoutine));
 		doNothing().when(mockRoutine).isAllDone();
+		doNothing().when(mockUser).earnRp(20);
 
 		//then
 		assertDoesNotThrow(() -> routineService.allDoneRoutine(request));
