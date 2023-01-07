@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
@@ -340,12 +341,50 @@ public class RoutineServiceTest {
 		RoutineProgressRequest request = getRoutineProgressRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		User mockUser = mock(User.class);
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mockUser);
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
 		doNothing().when(routineDayService).progressDailyRoutine(any(Routine.class));
+		doNothing().when(mockUser).earnRp(1);
 
 		//then
 		assertDoesNotThrow(() -> routineService.progressRoutine(request));
+	}
+
+	@DisplayName("루틴 진행 테스트 - 루틴 전체 완료")
+	@Test
+	void given_RoutineAllDoneRequest_when_AllDoneRoutine_then_DoesNotThrow() {
+		//given
+		RoutineAllDoneRequest request = getRoutineAllDoneRequestFixture();
+
+		//when
+		User mockUser = mock(User.class);
+		Routine mockRoutine = mock(Routine.class);
+
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mockUser);
+		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mockRoutine));
+		doNothing().when(mockRoutine).isAllDone();
+
+		//then
+		assertDoesNotThrow(() -> routineService.allDoneRoutine(request));
+	}
+
+	@DisplayName("루틴 진행 테스트 - 루틴 실패 ")
+	@Test
+	void given_RoutineAllDoneRequest_when_AllDoneRoutine_then_ThrowIllegalStateException() {
+		//given
+		RoutineAllDoneRequest request = getRoutineAllDoneRequestFixture();
+
+		//when
+		Routine mockRoutine = mock(Routine.class);
+
+		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mockRoutine));
+		doThrow(IllegalStateException.class).when(mockRoutine).isAllDone();
+
+		//then
+		assertThrows(IllegalStateException.class,
+			() -> routineService.allDoneRoutine(request));
 	}
 
 	private RoutineUpdateRequest getRoutineUpdateRequestFixture() {
@@ -384,6 +423,13 @@ public class RoutineServiceTest {
 
 	private RoutineProgressRequest getRoutineProgressRequestFixture() {
 		RoutineProgressRequest request = new RoutineProgressRequest();
+		request.setUsername("username");
+		request.setRoutineId(1L);
+		return request;
+	}
+
+	private RoutineAllDoneRequest getRoutineAllDoneRequestFixture() {
+		RoutineAllDoneRequest request = new RoutineAllDoneRequest();
 		request.setUsername("username");
 		request.setRoutineId(1L);
 		return request;
