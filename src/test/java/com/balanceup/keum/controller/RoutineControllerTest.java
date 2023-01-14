@@ -289,4 +289,53 @@ public class RoutineControllerTest {
 			.andExpect(jsonPath("$.resultCode", containsString("error")));
 	}
 
+	@DisplayName("[API][GET] 루틴 전체 조회 테스트")
+	@Test
+	@WithMockUser
+	void given_TotalInquireRoutineRequest_when_TotalInquireRoutine_then_ReturnOk() throws Exception {
+		//given
+		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
+		MultiValueMap<String, String> param = new LinkedMultiValueMap<>();
+		param.add("userId", "1");
+
+		//mock
+		when(routineService.totalInquireRoutine(1L)).thenReturn(Mockito.anyList());
+
+		//when & then
+		mockMvc.perform(get("/routines")
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(request))
+				.params(param)
+			).andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.resultCode", containsString("success")))
+			.andExpect(jsonPath("$.message", containsString("루틴 전체조회가 완료되었습니다.")));
+	}
+
+	@DisplayName("[API][GET] 루틴 전체 조회 테스트 - 비즈니스 로직 오류")
+	@Test
+	@WithMockUser
+	void given_InvalidRequest_when_TotalInquireRoutine_then_ReturnBadRequest() throws Exception {
+		//given
+		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
+		MultiValueMap<String, String> param = new LinkedMultiValueMap<>();
+		param.add("userId", "1");
+
+		//mock
+		when(routineService.totalInquireRoutine(1L)).thenThrow(new IllegalStateException());
+
+		//when & then
+		mockMvc.perform(get("/routines")
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(request))
+				.params(param)
+			).andDo(print())
+			.andExpect(status().isBadRequest())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.resultCode", containsString("error")));
+	}
+
 }
