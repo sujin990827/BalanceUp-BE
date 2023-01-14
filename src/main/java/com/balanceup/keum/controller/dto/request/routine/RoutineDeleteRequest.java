@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class RoutineDeleteRequest {
-	private String username;
+	private Long userId;
 	private Long routineId;
 }

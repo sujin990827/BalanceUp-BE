@@ -47,7 +47,7 @@ public class RoutineServiceTest {
 		RoutineMakeRequest request = getRoutineMakeRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
 		when(routineRepository.findAllByUser(any(User.class))).thenReturn(mock(List.class));
 		when(routineDayService.makeRoutineDays()).thenReturn(mock(List.class));
 		when(routineRepository.save(any())).thenReturn(mock(Routine.class));
@@ -63,7 +63,7 @@ public class RoutineServiceTest {
 		RoutineMakeRequest request = getRoutineMakeRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenThrow(UsernameNotFoundException.class);
+		when(userService.findUserById(eq(request.getUserId()))).thenThrow(UsernameNotFoundException.class);
 
 		//then
 		assertThrows(UsernameNotFoundException.class,
@@ -78,7 +78,7 @@ public class RoutineServiceTest {
 		Routine routine = Routine.ofRoutineInfo(request, List.of(), User.of("username", "1234", "asdf", "asd"));
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
 		when(routineRepository.findAllByUser(any(User.class))).thenReturn(List.of(routine, routine, routine, routine));
 		//then
 		IllegalStateException e = assertThrows(IllegalStateException.class,
@@ -94,7 +94,7 @@ public class RoutineServiceTest {
 		RoutineMakeRequest request = getRoutineMakeRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
 		when(routineRepository.findAllByUser(any(User.class))).thenReturn(mock(List.class));
 		doThrow(IllegalArgumentException.class).when(routineDayService).makeRoutineDays();
 
@@ -110,7 +110,7 @@ public class RoutineServiceTest {
 		RoutineMakeRequest request = getRoutineMakeRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
 		when(routineRepository.findAllByUser(any(User.class))).thenReturn(mock(List.class));
 		doReturn(mock(List.class)).when(routineDayService).makeRoutineDays();
 		doThrow(IllegalArgumentException.class).when(routineRepository).save(any(Routine.class));
@@ -128,7 +128,7 @@ public class RoutineServiceTest {
 		request.setRoutineTitle(null);
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
 
 		//then
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
@@ -144,7 +144,7 @@ public class RoutineServiceTest {
 		request.setRoutineCategory(null);
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
 
 		//then
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
@@ -160,7 +160,7 @@ public class RoutineServiceTest {
 		request.setDays(null);
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
 
 		//then
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
@@ -175,7 +175,7 @@ public class RoutineServiceTest {
 		RoutineUpdateRequest request = getRoutineUpdateRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
 
 		//then
@@ -189,10 +189,10 @@ public class RoutineServiceTest {
 		RoutineUpdateRequest request = getRoutineUpdateRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenThrow(UsernameNotFoundException.class);
+		when(userService.findUserById(request.getUserId())).thenThrow(IllegalStateException.class);
 
 		//then
-		assertThrows(UsernameNotFoundException.class,
+		assertThrows(IllegalStateException.class,
 			() -> routineService.updateRoutine(request));
 	}
 
@@ -203,7 +203,7 @@ public class RoutineServiceTest {
 		RoutineUpdateRequest request = getRoutineUpdateRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.empty());
 
 		//then
@@ -220,7 +220,7 @@ public class RoutineServiceTest {
 		request.setRoutineTitle(null);
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
 
 		//then
@@ -237,7 +237,7 @@ public class RoutineServiceTest {
 		request.setDays(null);
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
 
 		//then
@@ -296,7 +296,7 @@ public class RoutineServiceTest {
 		RoutineDeleteRequest request = getRoutineDeleteRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
 		doNothing().when(routineRepository).delete(any(Routine.class));
 
@@ -311,10 +311,10 @@ public class RoutineServiceTest {
 		RoutineDeleteRequest request = getRoutineDeleteRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenThrow(UsernameNotFoundException.class);
+		when(userService.findUserById(request.getUserId())).thenThrow(IllegalStateException.class);
 
 		//then
-		assertThrows(UsernameNotFoundException.class,
+		assertThrows(IllegalStateException.class,
 			() -> routineService.deleteRoutine(request));
 	}
 
@@ -325,7 +325,7 @@ public class RoutineServiceTest {
 		RoutineDeleteRequest request = getRoutineDeleteRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(eq(request.getUserId()))).thenReturn(mock(User.class));
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.empty());
 
 		//then
@@ -342,7 +342,7 @@ public class RoutineServiceTest {
 
 		//when
 		User mockUser = mock(User.class);
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mockUser);
+		when(userService.findUserById(eq(request.getUserId()))).thenReturn(mockUser);
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
 		doNothing().when(routineDayService).progressDailyRoutine(any(Routine.class));
 		doNothing().when(mockUser).earnRp(1);
@@ -361,7 +361,7 @@ public class RoutineServiceTest {
 		User mockUser = mock(User.class);
 		Routine mockRoutine = mock(Routine.class);
 
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mockUser);
+		when(userService.findUserById(eq(request.getUserId()))).thenReturn(mockUser);
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mockRoutine));
 		doNothing().when(mockRoutine).isAllDone();
 		doNothing().when(mockUser).earnRp(20);
@@ -379,7 +379,7 @@ public class RoutineServiceTest {
 		//when
 		Routine mockRoutine = mock(Routine.class);
 
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(eq(request.getUserId()))).thenReturn(mock(User.class));
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mockRoutine));
 		doThrow(IllegalStateException.class).when(mockRoutine).isAllDone();
 
@@ -419,7 +419,7 @@ public class RoutineServiceTest {
 
 	private RoutineUpdateRequest getRoutineUpdateRequestFixture() {
 		RoutineUpdateRequest request = new RoutineUpdateRequest();
-		request.setUsername("username");
+		request.setUserId(1L);
 		request.setRoutineId(1L);
 		request.setRoutineTitle("title");
 		request.setDays("월화수");
@@ -429,7 +429,7 @@ public class RoutineServiceTest {
 
 	private static RoutineMakeRequest getRoutineMakeRequestFixture() {
 		RoutineMakeRequest request = new RoutineMakeRequest();
-		request.setUsername("username");
+		request.setUserId(1L);
 		request.setRoutineTitle("title");
 		request.setDays("월화수");
 		request.setAlarmTime("09:00");
@@ -446,21 +446,21 @@ public class RoutineServiceTest {
 
 	private RoutineDeleteRequest getRoutineDeleteRequestFixture() {
 		RoutineDeleteRequest request = new RoutineDeleteRequest();
-		request.setUsername("username");
+		request.setUserId(1L);
 		request.setRoutineId(1L);
 		return request;
 	}
 
 	private RoutineProgressRequest getRoutineProgressRequestFixture() {
 		RoutineProgressRequest request = new RoutineProgressRequest();
-		request.setUsername("username");
+		request.setUserId(1L);
 		request.setRoutineId(1L);
 		return request;
 	}
 
 	private RoutineAllDoneRequest getRoutineAllDoneRequestFixture() {
 		RoutineAllDoneRequest request = new RoutineAllDoneRequest();
-		request.setUsername("username");
+		request.setUserId(1L);
 		request.setRoutineId(1L);
 		return request;
 	}

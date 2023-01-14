@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class RoutineMakeRequest {
 
-	private String username;
+	private Long userId;
 	private String routineTitle;
 	private RoutineCategory routineCategory;
 	private String days;
