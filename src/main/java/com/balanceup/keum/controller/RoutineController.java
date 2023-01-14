@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
@@ -69,6 +70,15 @@ public class RoutineController {
 			Response.of("success",
 				"루틴 조회가 완료되었습니다.",
 				routineService.inquireRoutine(request)
+			), HttpStatus.OK);
+	}
+
+	@GetMapping("/routines")
+	public ResponseEntity<?> totalInquireRoutine(@RequestParam("userId") String userId) {
+		return new ResponseEntity<>(
+			Response.of("success",
+				"루틴 전체조회가 완료되었습니다.",
+				routineService.totalInquireRoutine(Long.parseLong(userId))
 			), HttpStatus.OK);
 	}
 
