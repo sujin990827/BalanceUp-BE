@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
+import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
 import com.balanceup.keum.controller.dto.response.Response;
 import com.balanceup.keum.service.RoutineService;
@@ -35,6 +36,16 @@ public class RoutineController {
 			Response.of("success",
 				"루틴 수정이 완료되었습니다.",
 				routineService.updateRoutine(request)
+			), HttpStatus.OK);
+	}
+
+	@PutMapping("/progress/routine")
+	public ResponseEntity<?> progressRoutine(@RequestBody RoutineProgressRequest request) {
+		routineService.progressRoutine(request);
+		return new ResponseEntity<>(
+			Response.of("success",
+				"루틴 진행이 완료되었습니다.",
+				null
 			), HttpStatus.OK);
 	}
 
