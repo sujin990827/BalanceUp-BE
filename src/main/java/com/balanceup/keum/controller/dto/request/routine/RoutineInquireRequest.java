@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class RoutineInquireRequest {
 
-	private String username;
+	private Long userId;
 	private Long routineId;
 }

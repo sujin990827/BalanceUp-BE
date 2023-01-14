@@ -253,7 +253,7 @@ public class RoutineServiceTest {
 		RoutineInquireRequest request = getRoutineInquireRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(eq(request.getUserId()))).thenReturn(mock(User.class));
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
 
 		//then
@@ -267,7 +267,7 @@ public class RoutineServiceTest {
 		RoutineInquireRequest request = getRoutineInquireRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenThrow(UsernameNotFoundException.class);
+		when(userService.findUserById(eq(request.getUserId()))).thenThrow(UsernameNotFoundException.class);
 
 		//then
 		assertThrows(UsernameNotFoundException.class,
@@ -281,7 +281,7 @@ public class RoutineServiceTest {
 		RoutineInquireRequest request = getRoutineInquireRequestFixture();
 
 		//when
-		when(userService.findUserByUsername(eq(request.getUsername()))).thenReturn(mock(User.class));
+		when(userService.findUserById(eq(request.getUserId()))).thenReturn(mock(User.class));
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.empty());
 
 		//then
@@ -439,7 +439,7 @@ public class RoutineServiceTest {
 
 	private RoutineInquireRequest getRoutineInquireRequestFixture() {
 		RoutineInquireRequest request = new RoutineInquireRequest();
-		request.setUsername("username");
+		request.setUserId(1L);
 		request.setRoutineId(1L);
 		return request;
 	}

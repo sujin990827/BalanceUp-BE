@@ -60,7 +60,7 @@ public class RoutineService {
 
 	@Transactional(readOnly = true)
 	public RoutineResponse inquireRoutine(RoutineInquireRequest request) {
-		User user = userService.findUserByUsername(request.getUsername());
+		User user = userService.findUserById(request.getUserId());
 		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
 
 		return RoutineResponse.from(routine, user);
