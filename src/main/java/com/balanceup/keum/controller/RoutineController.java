@@ -2,12 +2,15 @@ package com.balanceup.keum.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
+import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
@@ -57,6 +60,15 @@ public class RoutineController {
 			Response.of("success",
 				"루틴 전체 진행이 완료되었습니다. 20rp 상승",
 				null
+			), HttpStatus.OK);
+	}
+
+	@GetMapping("/routine")
+	public ResponseEntity<?> inquireRoutine(@ModelAttribute RoutineInquireRequest request) {
+		return new ResponseEntity<>(
+			Response.of("success",
+				"루틴 조회가 완료되었습니다.",
+				routineService.inquireRoutine(request)
 			), HttpStatus.OK);
 	}
 
