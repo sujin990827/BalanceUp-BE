@@ -38,6 +38,7 @@ import lombok.ToString;
 public class Routine {
 
 	public static final int ROUTINE_MAX_DAY = 14;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(name = "routine_id")

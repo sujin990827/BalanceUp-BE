@@ -9,4 +9,5 @@ import com.balanceup.keum.domain.User;
 
 public interface RoutineRepository extends JpaRepository<Routine, Long> {
 	List<Routine> findAllByUser(User user);
+
 }

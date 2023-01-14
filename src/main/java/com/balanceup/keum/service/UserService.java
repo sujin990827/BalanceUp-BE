@@ -81,6 +81,12 @@ public class UserService {
 		return UserDeleteResponse.from(user);
 	}
 
+	@Transactional(readOnly = true)
+	public User findUserById(Long userId) {
+		return userRepository.findById(userId)
+			.orElseThrow(() -> new IllegalStateException("존재하지 않는 user 입니다."));
+	}
+
 	private User getUserByUsername(String username) {
 		return checkUserByUsername(userRepository.findByUsername(username));
 	}
@@ -115,6 +121,7 @@ public class UserService {
 			.findByUsername(username)
 			.orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 username 입니다."));
 	}
+
 
 }
 

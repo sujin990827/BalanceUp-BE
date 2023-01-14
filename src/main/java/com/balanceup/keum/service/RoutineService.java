@@ -2,6 +2,7 @@ package com.balanceup.keum.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
 import com.balanceup.keum.controller.dto.response.routine.RoutineMakeResponse;
 import com.balanceup.keum.controller.dto.response.routine.RoutineResponse;
+import com.balanceup.keum.controller.dto.response.routine.RoutineTotalResponse;
 import com.balanceup.keum.domain.Routine;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.RoutineRepository;
@@ -59,8 +61,7 @@ public class RoutineService {
 	@Transactional(readOnly = true)
 	public RoutineResponse inquireRoutine(RoutineInquireRequest request) {
 		User user = userService.findUserByUsername(request.getUsername());
-		Optional<Routine> routineOptional = routineRepository.findById(request.getRoutineId());
-		Routine routine = getRoutineByOptional(routineOptional);
+		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
 
 		return RoutineResponse.from(routine, user);
 	}
@@ -89,6 +90,16 @@ public class RoutineService {
 
 		routine.isAllDone();
 		user.earnRp(20);
+	}
+
+	@Transactional(readOnly = true)
+	public List<RoutineTotalResponse> totalInquireRoutine(Long userId) {
+		User user = userService.findUserById(userId);
+		List<Routine> routine = routineRepository.findAllByUser(user);
+
+		return routine.stream()
+			.map(RoutineTotalResponse::of)
+			.collect(Collectors.toList());
 	}
 
 	private static void isValidUpdateRequest(RoutineUpdateRequest request) {
