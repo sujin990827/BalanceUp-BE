@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
@@ -167,7 +168,7 @@ public class RoutineControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.resultCode", containsString("success")))
-			.andExpect(jsonPath("$.message", containsString("루틴 진행이 완료되었습니다.")));
+			.andExpect(jsonPath("$.message", containsString("루틴 진행이 완료되었습니다. 1rp 상승")));
 	}
 
 	@DisplayName("[API][PUT] 루틴 하루 진행 테스트 - 비즈니스 로직 오류")
@@ -182,6 +183,49 @@ public class RoutineControllerTest {
 
 		//when & then
 		mockMvc.perform(put("/progress/routine")
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(request))
+			).andDo(print())
+			.andExpect(status().isBadRequest())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.resultCode", containsString("error")));
+	}
+
+	@DisplayName("[API][PUT] 루틴 전체 진행 테스트")
+	@Test
+	@WithMockUser
+	void given_AllDoneRoutineRequest_when_AllDoneRoutine_then_ReturnOk() throws Exception {
+		//given
+		RoutineAllDoneRequest request = RequestFixture.getRoutineAllDoneRequestFixture();
+
+		//mock
+		doNothing().when(routineService).allDoneRoutine(request);
+
+		//when & then
+		mockMvc.perform(put("/progress/routines")
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(request))
+			).andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.resultCode", containsString("success")))
+			.andExpect(jsonPath("$.message", containsString("루틴 전체 진행이 완료되었습니다. 20rp 상승")));
+	}
+
+	@DisplayName("[API][PUT] 루틴 전체 진행 테스트 - 비즈니스 로직 오류")
+	@Test
+	@WithMockUser
+	void given_InvalidRequest_when_AllDoneRoutine_then_ReturnBadRequest() throws Exception {
+		//given
+		RoutineAllDoneRequest request = RequestFixture.getRoutineAllDoneRequestFixture();
+
+		//mock
+		doThrow(new IllegalStateException()).when(routineService).allDoneRoutine(request);
+
+		//when & then
+		mockMvc.perform(put("/progress/routines")
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
