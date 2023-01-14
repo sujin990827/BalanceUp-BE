@@ -17,8 +17,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
+import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
@@ -229,6 +232,57 @@ public class RoutineControllerTest {
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
+			).andDo(print())
+			.andExpect(status().isBadRequest())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.resultCode", containsString("error")));
+	}
+
+	@DisplayName("[API][GET] 루틴 상세 조회 테스트")
+	@Test
+	@WithMockUser
+	void given_InquireRoutineRequest_when_InquireRoutine_then_ReturnOk() throws Exception {
+		//given
+		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
+		MultiValueMap<String, String> param = new LinkedMultiValueMap<>();
+		param.add("userId", "1");
+		param.add("routineId", "1");
+
+		//mock
+		when(routineService.inquireRoutine(request)).thenReturn(Mockito.any(RoutineResponse.class));
+
+		//when & then
+		mockMvc.perform(get("/routine")
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(request))
+				.params(param)
+			).andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.resultCode", containsString("success")))
+			.andExpect(jsonPath("$.message", containsString("루틴 조회가 완료되었습니다.")));
+	}
+
+	@DisplayName("[API][GET] 루틴 상세 조회 테스트 - 비즈니스 로직 오류")
+	@Test
+	@WithMockUser
+	void given_InvalidRequest_when_InquireRoutine_then_ReturnBadRequest() throws Exception {
+		//given
+		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
+		MultiValueMap<String, String> param = new LinkedMultiValueMap<>();
+		param.add("userId", "1");
+		param.add("routineId", "1");
+
+		//mock
+		when(routineService.inquireRoutine(request)).thenThrow(new IllegalStateException());
+
+		//when & then
+		mockMvc.perform(get("/routine")
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(request))
+				.params(param)
 			).andDo(print())
 			.andExpect(status().isBadRequest())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
