@@ -246,7 +246,7 @@ public class RoutineServiceTest {
 		assertEquals("진행 요일이 입력되지 않았습니다.", e.getMessage());
 	}
 
-	@DisplayName("루틴 조회 테스트")
+	@DisplayName("루틴 상세 조회 테스트")
 	@Test
 	void given_RoutineInquireRequest_when_InquireRoutine_thenDoesNotThrow() {
 		//given
@@ -260,7 +260,7 @@ public class RoutineServiceTest {
 		assertDoesNotThrow(() -> routineService.inquireRoutine(request));
 	}
 
-	@DisplayName("루틴 조회 테스트(username 이 정확하지 않을 때)")
+	@DisplayName("루틴 상세 조회 테스트(username 이 정확하지 않을 때)")
 	@Test
 	void given_InvalidUsername_when_InquireRoutine_ThrowsUsernameNotFoundException() {
 		//given
@@ -274,7 +274,7 @@ public class RoutineServiceTest {
 			() -> routineService.inquireRoutine(request));
 	}
 
-	@DisplayName("루틴 조회 테스트(루틴 id가 정확하지 않을 때)")
+	@DisplayName("루틴 상세 조회 테스트(루틴 id가 정확하지 않을 때)")
 	@Test
 	void given_InvalidRoutineId_when_InquireRoutine_ThrowsIllegalArgumentException() {
 		//given
@@ -386,6 +386,35 @@ public class RoutineServiceTest {
 		//then
 		assertThrows(IllegalStateException.class,
 			() -> routineService.allDoneRoutine(request));
+	}
+
+	@DisplayName("루틴 전체 조회 테스트")
+	@Test
+	void given_RoutineTotalInquireRequest_when_TotalInquireRoutine_thenDoesNotThrow() {
+		//given
+		Long userId = 1L;
+
+		//when
+		User mockedUser = mock(User.class);
+		when(userService.findUserById(userId)).thenReturn(mockedUser);
+		when(routineRepository.findAllByUser(mockedUser)).thenReturn(mock(List.class));
+
+		//then
+		assertDoesNotThrow(() -> routineService.totalInquireRoutine(userId));
+	}
+
+	@DisplayName("루틴 전체 조회 테스트 (유저 id가 정확하지 않을 때)")
+	@Test
+	void given_RoutineTotalInquireRequest_when_TotalInquireRoutine_Throw() {
+		//given
+		Long userId = 1L;
+
+		//when
+		when(userService.findUserById(userId)).thenThrow(new IllegalStateException());
+
+		//then
+		assertThrows(IllegalStateException.class,
+			() -> routineService.totalInquireRoutine(userId));
 	}
 
 	private RoutineUpdateRequest getRoutineUpdateRequestFixture() {
