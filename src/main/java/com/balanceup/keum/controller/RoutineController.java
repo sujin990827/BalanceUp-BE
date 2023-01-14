@@ -2,6 +2,7 @@ package com.balanceup.keum.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
+import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
@@ -79,6 +81,16 @@ public class RoutineController {
 			Response.of("success",
 				"루틴 전체조회가 완료되었습니다.",
 				routineService.totalInquireRoutine(Long.parseLong(userId))
+			), HttpStatus.OK);
+	}
+
+	@DeleteMapping("routine")
+	public ResponseEntity<?> deleteRoutine(@RequestBody RoutineDeleteRequest request) {
+		routineService.deleteRoutine(request);
+		return new ResponseEntity<>(
+			Response.of("success",
+				"루틴 삭제가 완료되었습니다.",
+				null
 			), HttpStatus.OK);
 	}
 
