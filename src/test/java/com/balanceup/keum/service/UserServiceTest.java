@@ -23,6 +23,7 @@ import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameDuplicateRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.domain.User;
+import com.balanceup.keum.fixture.RequestFixture;
 import com.balanceup.keum.repository.RedisRepository;
 import com.balanceup.keum.repository.UserRepository;
 
@@ -185,7 +186,7 @@ public class UserServiceTest {
 	@Test
 	void given_WrongRefreshToken_when_ReIssue_then_ThrowException() {
 		//given
-		ReIssueRequest request = getReIssueRequestFixture();
+		ReIssueRequest request = RequestFixture.getReIssueRequestFixture();
 		UserDetails details =
 			new org.springframework.security.core.userdetails.User("username", "password",
 				List.of(new SimpleGrantedAuthority("ROLE_USER")));
@@ -203,7 +204,7 @@ public class UserServiceTest {
 	@Test
 	void given_NotNormalToken_when_ReIssue_then_ThrowException() {
 		//given
-		ReIssueRequest request = getReIssueRequestFixture();
+		ReIssueRequest request = RequestFixture.getReIssueRequestFixture();
 		UserDetails details =
 			new org.springframework.security.core.userdetails.User("username", "password",
 				List.of(new SimpleGrantedAuthority("ROLE_USER")));
@@ -222,7 +223,7 @@ public class UserServiceTest {
 	@Test
 	void given_NormalToken_when_ReIssue_then_DoesNotThrow() {
 		//given
-		ReIssueRequest request = getReIssueRequestFixture();
+		ReIssueRequest request = RequestFixture.getReIssueRequestFixture();
 		UserDetails details =
 			new org.springframework.security.core.userdetails.User("username", "password",
 				List.of(new SimpleGrantedAuthority("ROLE_USER")));
@@ -234,14 +235,6 @@ public class UserServiceTest {
 
 		//when & then
 		assertDoesNotThrow(() -> userService.reIssue(request, details));
-	}
-
-	private static ReIssueRequest getReIssueRequestFixture() {
-		ReIssueRequest request = new ReIssueRequest();
-		request.setUsername("username");
-		request.setToken("accessToken");
-		request.setRefreshToken("refreshToken");
-		return request;
 	}
 
 }

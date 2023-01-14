@@ -21,8 +21,8 @@ import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
 import com.balanceup.keum.domain.Routine;
-import com.balanceup.keum.domain.RoutineCategory;
 import com.balanceup.keum.domain.User;
+import com.balanceup.keum.fixture.RequestFixture;
 import com.balanceup.keum.repository.RoutineRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +44,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_RoutineInfo_when_makeRoutine_then_DoesNotThrow() {
 		//given
-		RoutineMakeRequest request = getRoutineMakeRequestFixture();
+		RoutineMakeRequest request = RequestFixture.getRoutineMakeRequestFixture();
 
 		//when
 		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
@@ -60,7 +60,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_NonExistentUser_when_makeRoutine_then_ThrowUsernameNotFoundException() {
 		//given
-		RoutineMakeRequest request = getRoutineMakeRequestFixture();
+		RoutineMakeRequest request = RequestFixture.getRoutineMakeRequestFixture();
 
 		//when
 		when(userService.findUserById(eq(request.getUserId()))).thenThrow(UsernameNotFoundException.class);
@@ -74,7 +74,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_OverRoutineNumbers_when_makeRoutine_then_ThrowIllegalStateException() {
 		//given
-		RoutineMakeRequest request = getRoutineMakeRequestFixture();
+		RoutineMakeRequest request = RequestFixture.getRoutineMakeRequestFixture();
 		Routine routine = Routine.ofRoutineInfo(request, List.of(), User.of("username", "1234", "asdf", "asd"));
 
 		//when
@@ -91,7 +91,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_InvalidRoutineInfo_when_makeRoutine_then_ThrowIllegalArgumentException() {
 		//given
-		RoutineMakeRequest request = getRoutineMakeRequestFixture();
+		RoutineMakeRequest request = RequestFixture.getRoutineMakeRequestFixture();
 
 		//when
 		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
@@ -107,7 +107,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_InvalidRoutine_when_makeRoutine_then_ThrowIllegalArgumentException() {
 		//given
-		RoutineMakeRequest request = getRoutineMakeRequestFixture();
+		RoutineMakeRequest request = RequestFixture.getRoutineMakeRequestFixture();
 
 		//when
 		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
@@ -124,7 +124,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_InvalidRoutineTitle_when_makeRoutine_then_ThrowIllegalArgumentException() {
 		//given
-		RoutineMakeRequest request = getRoutineMakeRequestFixture();
+		RoutineMakeRequest request = RequestFixture.getRoutineMakeRequestFixture();
 		request.setRoutineTitle(null);
 
 		//when
@@ -140,7 +140,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_InvalidRoutineCategory_when_makeRoutine_then_ThrowIllegalArgumentException() {
 		//given
-		RoutineMakeRequest request = getRoutineMakeRequestFixture();
+		RoutineMakeRequest request = RequestFixture.getRoutineMakeRequestFixture();
 		request.setRoutineCategory(null);
 
 		//when
@@ -156,7 +156,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_InvalidRoutineDays_when_makeRoutine_then_ThrowIllegalArgumentException() {
 		//given
-		RoutineMakeRequest request = getRoutineMakeRequestFixture();
+		RoutineMakeRequest request = RequestFixture.getRoutineMakeRequestFixture();
 		request.setDays(null);
 
 		//when
@@ -172,7 +172,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_RoutineUpdateInfo_when_UpdateRoutine_then_DoesNotThrow() {
 		//given
-		RoutineUpdateRequest request = getRoutineUpdateRequestFixture();
+		RoutineUpdateRequest request = RequestFixture.getRoutineUpdateRequestFixture();
 
 		//when
 		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
@@ -186,7 +186,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_InvalidUsername_when_UpdateRoutine_then_ThrowUsernameNotFoundException() {
 		//given
-		RoutineUpdateRequest request = getRoutineUpdateRequestFixture();
+		RoutineUpdateRequest request = RequestFixture.getRoutineUpdateRequestFixture();
 
 		//when
 		when(userService.findUserById(request.getUserId())).thenThrow(IllegalStateException.class);
@@ -200,7 +200,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_InvalidRoutineId_when_UpdateRoutine_then_ThrowIllegalArgumentException() {
 		//given
-		RoutineUpdateRequest request = getRoutineUpdateRequestFixture();
+		RoutineUpdateRequest request = RequestFixture.getRoutineUpdateRequestFixture();
 
 		//when
 		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
@@ -216,7 +216,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_InvalidRoutineTitle_when_UpdateRoutine_then_ThrowIllegalArgumentException() {
 		//given
-		RoutineUpdateRequest request = getRoutineUpdateRequestFixture();
+		RoutineUpdateRequest request = RequestFixture.getRoutineUpdateRequestFixture();
 		request.setRoutineTitle(null);
 
 		//when
@@ -233,7 +233,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_InvalidRoutineDays_when_UpdateRoutine_then_ThrowIllegalArgumentException() {
 		//given
-		RoutineUpdateRequest request = getRoutineUpdateRequestFixture();
+		RoutineUpdateRequest request = RequestFixture.getRoutineUpdateRequestFixture();
 		request.setDays(null);
 
 		//when
@@ -250,7 +250,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_RoutineInquireRequest_when_InquireRoutine_thenDoesNotThrow() {
 		//given
-		RoutineInquireRequest request = getRoutineInquireRequestFixture();
+		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
 
 		//when
 		when(userService.findUserById(eq(request.getUserId()))).thenReturn(mock(User.class));
@@ -264,7 +264,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_InvalidUsername_when_InquireRoutine_ThrowsUsernameNotFoundException() {
 		//given
-		RoutineInquireRequest request = getRoutineInquireRequestFixture();
+		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
 
 		//when
 		when(userService.findUserById(eq(request.getUserId()))).thenThrow(UsernameNotFoundException.class);
@@ -278,7 +278,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_InvalidRoutineId_when_InquireRoutine_ThrowsIllegalArgumentException() {
 		//given
-		RoutineInquireRequest request = getRoutineInquireRequestFixture();
+		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
 
 		//when
 		when(userService.findUserById(eq(request.getUserId()))).thenReturn(mock(User.class));
@@ -293,7 +293,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_RoutineDeleteRequest_when_DeleteRoutine_then_DoesNotThrow() {
 		//given
-		RoutineDeleteRequest request = getRoutineDeleteRequestFixture();
+		RoutineDeleteRequest request = RequestFixture.getRoutineDeleteRequestFixture();
 
 		//when
 		when(userService.findUserById(request.getUserId())).thenReturn(mock(User.class));
@@ -308,7 +308,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_InvalidUsername_when_DeleteRoutine_then_ThrowUsernameNotFoundException() {
 		//given
-		RoutineDeleteRequest request = getRoutineDeleteRequestFixture();
+		RoutineDeleteRequest request = RequestFixture.getRoutineDeleteRequestFixture();
 
 		//when
 		when(userService.findUserById(request.getUserId())).thenThrow(IllegalStateException.class);
@@ -322,7 +322,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_InvalidRoutineID_when_DeleteRoutine_then_ThrowIllegalArgumentException() {
 		//given
-		RoutineDeleteRequest request = getRoutineDeleteRequestFixture();
+		RoutineDeleteRequest request = RequestFixture.getRoutineDeleteRequestFixture();
 
 		//when
 		when(userService.findUserById(eq(request.getUserId()))).thenReturn(mock(User.class));
@@ -338,7 +338,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_RoutineProgressRequest_when_ProgressRoutine_then_DoesNotThrow() {
 		//given
-		RoutineProgressRequest request = getRoutineProgressRequestFixture();
+		RoutineProgressRequest request = RequestFixture.getRoutineProgressRequestFixture();
 
 		//when
 		User mockUser = mock(User.class);
@@ -355,7 +355,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_RoutineAllDoneRequest_when_AllDoneRoutine_then_DoesNotThrow() {
 		//given
-		RoutineAllDoneRequest request = getRoutineAllDoneRequestFixture();
+		RoutineAllDoneRequest request = RequestFixture.getRoutineAllDoneRequestFixture();
 
 		//when
 		User mockUser = mock(User.class);
@@ -374,7 +374,7 @@ public class RoutineServiceTest {
 	@Test
 	void given_RoutineAllDoneRequest_when_AllDoneRoutine_then_ThrowIllegalStateException() {
 		//given
-		RoutineAllDoneRequest request = getRoutineAllDoneRequestFixture();
+		RoutineAllDoneRequest request = RequestFixture.getRoutineAllDoneRequestFixture();
 
 		//when
 		Routine mockRoutine = mock(Routine.class);
@@ -415,54 +415,6 @@ public class RoutineServiceTest {
 		//then
 		assertThrows(IllegalStateException.class,
 			() -> routineService.totalInquireRoutine(userId));
-	}
-
-	private RoutineUpdateRequest getRoutineUpdateRequestFixture() {
-		RoutineUpdateRequest request = new RoutineUpdateRequest();
-		request.setUserId(1L);
-		request.setRoutineId(1L);
-		request.setRoutineTitle("title");
-		request.setDays("월화수");
-		request.setAlarmTime("09:00");
-		return request;
-	}
-
-	private static RoutineMakeRequest getRoutineMakeRequestFixture() {
-		RoutineMakeRequest request = new RoutineMakeRequest();
-		request.setUserId(1L);
-		request.setRoutineTitle("title");
-		request.setDays("월화수");
-		request.setAlarmTime("09:00");
-		request.setRoutineCategory(RoutineCategory.EXERCISE);
-		return request;
-	}
-
-	private RoutineInquireRequest getRoutineInquireRequestFixture() {
-		RoutineInquireRequest request = new RoutineInquireRequest();
-		request.setUserId(1L);
-		request.setRoutineId(1L);
-		return request;
-	}
-
-	private RoutineDeleteRequest getRoutineDeleteRequestFixture() {
-		RoutineDeleteRequest request = new RoutineDeleteRequest();
-		request.setUserId(1L);
-		request.setRoutineId(1L);
-		return request;
-	}
-
-	private RoutineProgressRequest getRoutineProgressRequestFixture() {
-		RoutineProgressRequest request = new RoutineProgressRequest();
-		request.setUserId(1L);
-		request.setRoutineId(1L);
-		return request;
-	}
-
-	private RoutineAllDoneRequest getRoutineAllDoneRequestFixture() {
-		RoutineAllDoneRequest request = new RoutineAllDoneRequest();
-		request.setUserId(1L);
-		request.setRoutineId(1L);
-		return request;
 	}
 
 }
