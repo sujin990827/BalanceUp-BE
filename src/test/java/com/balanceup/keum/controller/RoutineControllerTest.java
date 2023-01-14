@@ -21,6 +21,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
+import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
@@ -332,6 +333,49 @@ public class RoutineControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
 				.params(param)
+			).andDo(print())
+			.andExpect(status().isBadRequest())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.resultCode", containsString("error")));
+	}
+
+	@DisplayName("[API][DELETE] 루틴 삭제 테스트")
+	@Test
+	@WithMockUser
+	void given_DeleteRoutineRequest_when_DeleteRoutine_then_ReturnOk() throws Exception {
+		//given
+		RoutineDeleteRequest request = RequestFixture.getRoutineDeleteRequestFixture();
+
+		//mock
+		doNothing().when(routineService).deleteRoutine(request);
+
+		//when & then
+		mockMvc.perform(delete("/routine")
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(request))
+			).andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.resultCode", containsString("success")))
+			.andExpect(jsonPath("$.message", containsString("루틴 삭제가 완료되었습니다.")));
+	}
+
+	@DisplayName("[API][DELETE] 루틴 삭제 테스트 - 비즈니스 로직 오류")
+	@Test
+	@WithMockUser
+	void given_InvalidRequest_when_DeleteRoutine_then_ReturnBadRequest() throws Exception {
+		//given
+		RoutineDeleteRequest request = RequestFixture.getRoutineDeleteRequestFixture();
+
+		//mock
+		doThrow(new IllegalStateException()).when(routineService).deleteRoutine(request);
+
+		//when & then
+		mockMvc.perform(delete("/routine")
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(request))
 			).andDo(print())
 			.andExpect(status().isBadRequest())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
