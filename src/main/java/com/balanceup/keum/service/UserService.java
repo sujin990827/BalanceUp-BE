@@ -116,12 +116,5 @@ public class UserService {
 		}
 	}
 
-	public User findUserByUsername(String username) {
-		return userRepository
-			.findByUsername(username)
-			.orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 username 입니다."));
-	}
-
-
 }
 

@@ -39,24 +39,6 @@ public class RoutineDayService {
 		}
 	}
 
-	public boolean isComplete(Routine routine) {
-		List<RoutineDay> routineDays = routine.getRoutineDays();
-		int completeCount = 0;
-		int routineLength = routine.getDays().length();
-
-		for (int i = 0; i < 14; i++) {
-			RoutineDay routineDay = routineDays.get(i);
-			if (routineDay.isCompleted()) {
-				completeCount++;
-			}
-		}
-
-		if (completeCount == routineLength * 2) {
-			return true;
-		}
-		return false;
-	}
-
 	private void saveRoutineDay(List<RoutineDay> routineDays) {
 		Date today = new Date();
 
