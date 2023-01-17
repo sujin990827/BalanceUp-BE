@@ -35,7 +35,7 @@ public class JwtTokenUtil {
 	private final RedisRepository redisRepository;
 
 
-	public String getUserName(String token) {
+	public String getUserNameByToken(String token) {
 		return extractClaims(token).get("username", String.class);
 	}
 
@@ -69,7 +69,7 @@ public class JwtTokenUtil {
 	}
 
 	public boolean validateToken(String token, UserDetails userDetails) {
-		final String username = getUserName(token);
+		final String username = getUserNameByToken(token);
 		return (username.equals(userDetails.getUsername())) && !isExpired(token);
 	}
 
