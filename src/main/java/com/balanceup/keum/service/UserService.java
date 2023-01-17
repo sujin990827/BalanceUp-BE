@@ -45,7 +45,7 @@ public class UserService {
 
 		return UserResponse.from(userRepository.findByUsername(username)
 			.orElseThrow(() -> new IllegalStateException("존재하지 않는 회원입니다."))
-			.updateUserNickname(nickname), dto.getToken());
+			.updateUserNickname(nickname));
 	}
 
 	@Transactional(readOnly = true)

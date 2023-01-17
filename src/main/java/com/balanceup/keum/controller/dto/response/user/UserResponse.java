@@ -15,10 +15,9 @@ public class UserResponse {
 
 	private String username;
 	private String nickname;
-	private String token;
 
-	public static UserResponse from(User user, String token) {
-		return new UserResponse(user.getUsername(), user.getNickname(), token);
+	public static UserResponse from(User user) {
+		return new UserResponse(user.getUsername(), user.getNickname());
 	}
 
 }

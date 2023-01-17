@@ -12,5 +12,4 @@ import lombok.Setter;
 public class UserNicknameUpdateRequest {
 
 	private String nickname;
-	private String token;
 }

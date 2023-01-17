@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,6 +23,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.balanceup.keum.config.auth.PrincipalDetailService;
+import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
 import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
@@ -47,6 +49,9 @@ public class UserControllerTest {
 
 	@MockBean
 	private PrincipalDetailService principalDetailService;
+
+	@MockBean
+	private JwtTokenUtil jwtTokenUtil;
 
 	@DisplayName("[API][POST] 닉네임 중복확인 테스트 - 성공")
 	@Test
@@ -125,9 +130,10 @@ public class UserControllerTest {
 		String userName = "userName";
 		String nickname = "nickname";
 		String token = "jwtToken";
-		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname, token);
+		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname);
 
 		//mock
+		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(userName);
 		when(userService.updateNickname(request, userName)).thenReturn(mock(UserResponse.class));
 
 		//when & then
@@ -135,6 +141,7 @@ public class UserControllerTest {
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
+				.header(HttpHeaders.AUTHORIZATION, token)
 			).andDo(print())
 			.andExpect(status().isOk())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -149,9 +156,10 @@ public class UserControllerTest {
 		//given
 		String nickname = "nickname";
 		String token = "jwtToken";
-		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname, token);
+		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname);
 
 		//mock
+		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn("username");
 		when(userService.updateNickname(Mockito.any(UserNicknameUpdateRequest.class), anyString())).thenThrow(
 			IllegalArgumentException.class);
 
@@ -160,6 +168,7 @@ public class UserControllerTest {
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
+				.header(HttpHeaders.AUTHORIZATION, token)
 			).andDo(print())
 
 			.andExpect(status().isBadRequest())
@@ -174,9 +183,10 @@ public class UserControllerTest {
 		//given
 		String nickname = "nickname";
 		String token = "jwtToken";
-		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname, token);
+		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname);
 
 		//mock
+		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn("username");
 		when(userService.updateNickname(Mockito.any(UserNicknameUpdateRequest.class), anyString())).thenThrow(
 			IllegalArgumentException.class);
 
@@ -185,11 +195,13 @@ public class UserControllerTest {
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
+				.header(HttpHeaders.AUTHORIZATION, token)
 			).andDo(print())
 
 			.andExpect(status().isBadRequest())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.resultCode", containsString("error")));
+
 	}
 
 	@DisplayName("[API][GET] 토큰 재발급 테스트 ")

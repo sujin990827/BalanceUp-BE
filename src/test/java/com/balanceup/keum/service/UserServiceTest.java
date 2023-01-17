@@ -123,7 +123,7 @@ public class UserServiceTest {
 	void given_DuplicateNickname_when_NicknameUpdate_then_ThrowException() {
 		//given
 		String nickname = "dog";
-		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname, "");
+		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname);
 		User user = User.of("username", "password", nickname, "google");
 
 		//mock
@@ -140,7 +140,7 @@ public class UserServiceTest {
 	void given_Nickname_when_NicknameUpdate_then_DoesNotThrow() {
 		//given
 		String nickname = "dog";
-		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname, "");
+		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname);
 		User user = User.of("username", "password", nickname, "google");
 
 		//mock
