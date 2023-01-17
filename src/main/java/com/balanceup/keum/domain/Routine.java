@@ -103,6 +103,7 @@ public class Routine {
 
 	public static Routine of(String routineTitle, RoutineCategory routineCategory, String days, String alarmTime,
 		List<RoutineDay> routineDays, User user) {
+
 		return Routine.builder()
 			.routineTitle(routineTitle)
 			.routineCategory(routineCategory)
@@ -116,7 +117,7 @@ public class Routine {
 	public static Routine ofRoutineInfo(RoutineMakeRequest request, List<RoutineDay> routineDays, User user) {
 		return of(
 			request.getRoutineTitle(),
-			request.getRoutineCategory(),
+			RoutineCategory.find(request.getRoutineCategory()),
 			request.getDays(),
 			request.getAlarmTime(),
 			routineDays,

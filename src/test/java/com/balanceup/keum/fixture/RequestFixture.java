@@ -27,7 +27,7 @@ public class RequestFixture {
 		request.setRoutineTitle("title");
 		request.setDays("월화수");
 		request.setAlarmTime("09:00");
-		request.setRoutineCategory(RoutineCategory.EXERCISE);
+		request.setRoutineCategory("운동");
 		return request;
 	}
 
