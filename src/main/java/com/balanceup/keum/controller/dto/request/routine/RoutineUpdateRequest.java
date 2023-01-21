@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class RoutineUpdateRequest {
 
-	private Long userId;
 	private Long routineId;
 	private String routineTitle;
 	private String days;

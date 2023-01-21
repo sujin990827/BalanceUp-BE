@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -52,6 +53,9 @@ public class UserControllerTest {
 
 	@MockBean
 	private JwtTokenUtil jwtTokenUtil;
+
+	@MockBean
+	private MockHttpServletRequest servletRequest;
 
 	@DisplayName("[API][POST] 닉네임 중복확인 테스트 - 성공")
 	@Test
@@ -129,7 +133,7 @@ public class UserControllerTest {
 		//given
 		String userName = "userName";
 		String nickname = "nickname";
-		String token = "jwtToken";
+		String token = "token.token.token";
 		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname);
 
 		//mock
@@ -155,7 +159,7 @@ public class UserControllerTest {
 	void given_DuplicateNickname_when_UpdateNickname_then_ReturnBadRequest() throws Exception {
 		//given
 		String nickname = "nickname";
-		String token = "jwtToken";
+		String token = "token.token.token";
 		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname);
 
 		//mock
@@ -166,11 +170,14 @@ public class UserControllerTest {
 		//when & then
 		mockMvc.perform(put("/user/nickname")
 				.with(csrf())
+				.with(request1 -> {
+					request1.addHeader(HttpHeaders.AUTHORIZATION, token);
+					return request1;
+				})
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
 				.header(HttpHeaders.AUTHORIZATION, token)
 			).andDo(print())
-
 			.andExpect(status().isBadRequest())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.resultCode", containsString("error")));
@@ -182,7 +189,7 @@ public class UserControllerTest {
 	void given_WrongNickname_when_UpdateNickname_then_ReturnBadRequest() throws Exception {
 		//given
 		String nickname = "nickname";
-		String token = "jwtToken";
+		String token = "token.token.token";
 		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname);
 
 		//mock
@@ -193,6 +200,10 @@ public class UserControllerTest {
 		//when & then
 		mockMvc.perform(put("/user/nickname")
 				.with(csrf())
+				.with(request1 -> {
+					request1.addHeader(HttpHeaders.AUTHORIZATION, token);
+					return request1;
+				})
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
 				.header(HttpHeaders.AUTHORIZATION, token)
@@ -210,6 +221,7 @@ public class UserControllerTest {
 	void given_TokenDtoAndUserDetails_when_ReIssueToken_then_ReturnCreated() throws Exception {
 		//given
 		ReIssueRequest request = getReIssueRequestFixture();
+		String token = "token.token.token";
 
 		//mock
 		when(principalDetailService.loadUserByUsername(request.getUsername())).thenReturn(mock(UserDetails.class));
@@ -218,6 +230,10 @@ public class UserControllerTest {
 		//when & then
 		mockMvc.perform(post("/auth/refresh")
 				.with(csrf())
+				.with(request1 -> {
+					request1.addHeader(HttpHeaders.AUTHORIZATION, token);
+					return request1;
+				})
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
 			).andDo(print())
@@ -233,6 +249,8 @@ public class UserControllerTest {
 	void given_TokenDtoAndUserDetails_when_ReIssueToken_then_ReturnBadRequest() throws Exception {
 		//given
 		ReIssueRequest request = getReIssueRequestFixture();
+		String token = "token.token.token";
+
 		//mock
 		when(principalDetailService.loadUserByUsername(request.getUsername()))
 			.thenThrow(UsernameNotFoundException.class);
@@ -240,6 +258,10 @@ public class UserControllerTest {
 		//when & then
 		mockMvc.perform(post("/auth/refresh")
 				.with(csrf())
+				.with(request1 -> {
+					request1.addHeader(HttpHeaders.AUTHORIZATION, token);
+					return request1;
+				})
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
 			).andDo(print())
@@ -254,6 +276,8 @@ public class UserControllerTest {
 	void given_WrongToken_when_ReIssueToken_then_ReturnBadRequest() throws Exception {
 		//given
 		ReIssueRequest request = getReIssueRequestFixture();
+		String token = "token.token.token";
+
 		//mock
 		when(principalDetailService.loadUserByUsername(request.getUsername())).thenReturn(mock(UserDetails.class));
 		when(userService.reIssue(Mockito.any(ReIssueRequest.class), Mockito.any(UserDetails.class)))
@@ -262,6 +286,10 @@ public class UserControllerTest {
 		//when & then
 		mockMvc.perform(post("/auth/refresh")
 				.with(csrf())
+				.with(request1 -> {
+					request1.addHeader(HttpHeaders.AUTHORIZATION, token);
+					return request1;
+				})
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
 			).andDo(print())
@@ -276,6 +304,7 @@ public class UserControllerTest {
 		//given
 		String username = "username";
 		UserDeleteRequest request = new UserDeleteRequest(username);
+		String token = "token.token.token";
 
 		//mock
 		when(userService.delete(Mockito.any(UserDeleteRequest.class))).thenThrow(IllegalStateException.class);
@@ -283,6 +312,10 @@ public class UserControllerTest {
 		//when & then
 		mockMvc.perform(put("/withdraw")
 				.with(csrf())
+				.with(request1 -> {
+					request1.addHeader(HttpHeaders.AUTHORIZATION, token);
+					return request1;
+				})
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
 			).andDo(print())
@@ -297,6 +330,7 @@ public class UserControllerTest {
 		//given
 		String username = "username";
 		UserDeleteRequest request = new UserDeleteRequest(username);
+		String token = "token.token.token";
 
 		//mock
 		when(userService.delete(request)).thenReturn(mock(UserDeleteResponse.class));
@@ -304,6 +338,10 @@ public class UserControllerTest {
 		//when & then
 		mockMvc.perform(put("/withdraw")
 				.with(csrf())
+				.with(request1 -> {
+					request1.addHeader(HttpHeaders.AUTHORIZATION, token);
+					return request1;
+				})
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(request))
 			).andDo(print())

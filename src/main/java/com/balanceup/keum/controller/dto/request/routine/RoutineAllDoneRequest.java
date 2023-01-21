@@ -9,6 +9,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class RoutineAllDoneRequest {
 
-	private Long userId;
 	private Long routineId;
 }

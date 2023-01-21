@@ -82,9 +82,9 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public User findUserById(Long userId) {
-		return userRepository.findById(userId)
-			.orElseThrow(() -> new IllegalStateException("존재하지 않는 user 입니다."));
+	public User findUserByUsername(String username) {
+		return userRepository.findByUsername(username)
+			.orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 user 입니다."));
 	}
 
 	private User getUserByUsername(String username) {

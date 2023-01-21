@@ -34,8 +34,8 @@ public class RoutineService {
 	private final RoutineRepository routineRepository;
 
 	@Transactional
-	public RoutineMakeResponse makeRoutine(RoutineMakeRequest request) {
-		User user = userService.findUserById(request.getUserId());
+	public RoutineMakeResponse makeRoutine(RoutineMakeRequest request, String username) {
+		User user = userService.findUserByUsername(username);
 
 		isValidMakeRequest(request);
 		isMaximumRoutine(user);
@@ -47,8 +47,8 @@ public class RoutineService {
 	}
 
 	@Transactional
-	public RoutineResponse updateRoutine(RoutineUpdateRequest request) {
-		User user = userService.findUserById(request.getUserId());
+	public RoutineResponse updateRoutine(RoutineUpdateRequest request, String username) {
+		User user = userService.findUserByUsername(username);
 		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
 
 		isValidUpdateRequest(request);
@@ -59,24 +59,24 @@ public class RoutineService {
 	}
 
 	@Transactional(readOnly = true)
-	public RoutineResponse inquireRoutine(RoutineInquireRequest request) {
-		User user = userService.findUserById(request.getUserId());
+	public RoutineResponse inquireRoutine(RoutineInquireRequest request, String username) {
+		User user = userService.findUserByUsername(username);
 		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
 
 		return RoutineResponse.from(routine, user);
 	}
 
 	@Transactional
-	public void deleteRoutine(RoutineDeleteRequest request) {
-		userService.findUserById(request.getUserId());
+	public void deleteRoutine(RoutineDeleteRequest request, String username) {
+		userService.findUserByUsername(username);
 		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
 
 		routineRepository.delete(routine);
 	}
 
 	@Transactional
-	public void progressRoutine(RoutineProgressRequest request) {
-		User user = userService.findUserById(request.getUserId());
+	public void progressRoutine(RoutineProgressRequest request, String username) {
+		User user = userService.findUserByUsername(username);
 		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
 
 		routineDayService.progressDailyRoutine(routine);
@@ -84,8 +84,8 @@ public class RoutineService {
 	}
 
 	@Transactional(readOnly = true)
-	public void allDoneRoutine(RoutineAllDoneRequest request) {
-		User user = userService.findUserById(request.getUserId());
+	public void allDoneRoutine(RoutineAllDoneRequest request, String username) {
+		User user = userService.findUserByUsername(username);
 		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
 
 		routine.isAllDone();
@@ -93,8 +93,8 @@ public class RoutineService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<RoutineTotalResponse> totalInquireRoutine(Long userId) {
-		User user = userService.findUserById(userId);
+	public List<RoutineTotalResponse> totalInquireRoutine(String username) {
+		User user = userService.findUserByUsername(username);
 		List<Routine> routine = routineRepository.findAllByUser(user);
 
 		return routine.stream()

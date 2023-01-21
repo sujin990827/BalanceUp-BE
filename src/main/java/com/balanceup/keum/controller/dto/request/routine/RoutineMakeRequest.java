@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class RoutineMakeRequest {
 
-	private Long userId;
 	private String routineTitle;
 	private String routineCategory;
 	private String days;
 	private String alarmTime;
-
 }
