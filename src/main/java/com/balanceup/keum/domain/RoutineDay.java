@@ -37,7 +37,7 @@ public class RoutineDay {
 	}
 
 	public boolean isToday(String today) {
-		String routineDay = new SimpleDateFormat("dd-MM-yyyy").format(this.day);
+		String routineDay = new SimpleDateFormat("yyyy-MM-dd").format(this.day);
 		return routineDay.equals(today);
 	}
 

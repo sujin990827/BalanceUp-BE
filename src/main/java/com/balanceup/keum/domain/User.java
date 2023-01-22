@@ -69,10 +69,15 @@ public class User {
 		this.password = password;
 		this.nickname = nickname;
 		this.provider = provider;
+		this.rp = 0;
 	}
 
-	public boolean existNickname() {
-		return this.nickname != null;
+	public void withdraw() {
+		this.deletedAt = Timestamp.from(Instant.now());
+	}
+
+	public void earnRp(int rp) {
+		this.rp += rp;
 	}
 
 	@PrePersist
@@ -85,11 +90,4 @@ public class User {
 		this.modifiedAt = Timestamp.from(Instant.now());
 	}
 
-	public void withdraw() {
-		this.deletedAt = Timestamp.from(Instant.now());
-	}
-
-	public void earnRp(int rp) {
-		this.rp += rp;
-	}
 }

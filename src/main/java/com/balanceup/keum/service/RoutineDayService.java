@@ -29,10 +29,14 @@ public class RoutineDayService {
 
 	public void progressDailyRoutine(Routine routine) {
 		List<RoutineDay> routineDays = routine.getRoutineDays();
-		String today = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+		String today = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
 		for (RoutineDay routineDay : routineDays) {
 			if (routineDay.isToday(today)) {
+				if (routineDay.isCompleted()) {
+					throw new IllegalStateException("이미 진행된 루틴입니다.");
+				}
+
 				routineDay.progress();
 				break;
 			}
