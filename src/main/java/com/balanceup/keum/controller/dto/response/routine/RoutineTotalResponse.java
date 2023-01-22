@@ -19,7 +19,7 @@ public class RoutineTotalResponse {
 
 	private Long routineId;
 	private String routineTitle;
-	private RoutineCategory routineCategory;
+	private String routineCategory;
 	private String days;
 	private String alarmTime;
 	private boolean completed;
@@ -29,7 +29,7 @@ public class RoutineTotalResponse {
 		return RoutineTotalResponse.builder()
 			.routineId(routine.getId())
 			.routineTitle(routine.getRoutineTitle())
-			.routineCategory(routine.getRoutineCategory())
+			.routineCategory(routine.getRoutineCategory().getValue())
 			.days(routine.getDays())
 			.alarmTime(routine.getAlarmTime())
 			.completed(routine.getCompleted())

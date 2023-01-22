@@ -1,7 +1,6 @@
 package com.balanceup.keum.controller.dto.response.routine;
 
 import com.balanceup.keum.domain.Routine;
-import com.balanceup.keum.domain.RoutineCategory;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +15,7 @@ public class RoutineMakeResponse {
 
 	private String username;
 	private String routineTitle;
-	private RoutineCategory routineCategory;
+	private String routineCategory;
 	private String alarmTime;
 	private String days;
 
@@ -24,7 +23,7 @@ public class RoutineMakeResponse {
 		return RoutineMakeResponse.builder()
 			.username(username)
 			.routineTitle(routine.getRoutineTitle())
-			.routineCategory(routine.getRoutineCategory())
+			.routineCategory(routine.getRoutineCategory().getValue())
 			.days(routine.getDays())
 			.alarmTime(routine.getAlarmTime())
 			.build();

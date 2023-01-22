@@ -1,5 +1,8 @@
 package com.balanceup.keum.domain;
 
+import lombok.Getter;
+
+@Getter
 public enum RoutineCategory {
 	EXERCISE("운동"),
 	LEARNING("학습"),
