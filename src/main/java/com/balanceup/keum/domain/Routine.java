@@ -21,6 +21,8 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.BatchSize;
+
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
 
@@ -51,6 +53,7 @@ public class Routine {
 	@Column(length = 100, nullable = false, name = "routine_title")
 	private String routineTitle;
 
+	@BatchSize(size = 20)
 	@JoinColumn(name = "routine_id")
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	List<RoutineDay> routineDays;
