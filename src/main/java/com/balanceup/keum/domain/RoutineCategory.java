@@ -16,9 +16,9 @@ public enum RoutineCategory {
 	}
 
 	public static RoutineCategory find(String value) {
-		for (RoutineCategory r : RoutineCategory.values()) {
-			if (r.value.equals(value)) {
-				return r;
+		for (RoutineCategory routine : RoutineCategory.values()) {
+			if (routine.value.equals(value)) {
+				return routine;
 			}
 		}
 		throw new IllegalArgumentException("정확한 루틴카테고리가 아닙니다.");
