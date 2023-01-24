@@ -46,15 +46,17 @@ public class RoutineServiceTest {
 		//given
 		RoutineMakeRequest request = RequestFixture.getRoutineMakeRequestFixture();
 		String username = "username";
+		User mockedUser = mock(User.class);
+		Routine routine = Routine.ofRoutineInfo(request, mock(List.class), mockedUser);
 
 		//when
-		when(userService.findUserByUsername(username)).thenReturn(mock(User.class));
+		when(userService.findUserByUsername(username)).thenReturn(mockedUser);
 		when(routineRepository.findAllByUser(any(User.class))).thenReturn(mock(List.class));
 		when(routineDayService.makeRoutineDays()).thenReturn(mock(List.class));
-		when(routineRepository.save(any())).thenReturn(mock(Routine.class));
+		when(routineRepository.save(any())).thenReturn(routine);
 
 		//then
-		assertDoesNotThrow(() -> routineService.makeRoutine(request, username));
+		routineService.makeRoutine(request, username);
 	}
 
 	@DisplayName("루틴 생성 테스트 (로그인한 유저가 정확하지 않을때)")
