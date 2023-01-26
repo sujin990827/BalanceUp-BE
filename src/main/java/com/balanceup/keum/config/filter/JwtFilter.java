@@ -17,6 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.balanceup.keum.config.auth.PrincipalDetailService;
 import com.balanceup.keum.config.util.JwtTokenUtil;
 
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,7 +46,7 @@ public class JwtFilter extends OncePerRequestFilter {
 			UserDetails userDetails = principalDetailService.loadUserByUsername(username);
 
 			if (!jwtTokenUtil.validateToken(token, userDetails)) {
-				throw new IllegalStateException("Refresh token 만료");
+				throw new JwtException("Jwt token 만료");
 			}
 
 			UsernamePasswordAuthenticationToken authentication =

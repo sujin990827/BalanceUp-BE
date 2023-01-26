@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.balanceup.keum.controller.dto.response.Response;
 
+import io.jsonwebtoken.JwtException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -14,6 +16,12 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<?> apiException(RuntimeException e) {
 		return new ResponseEntity<>(
 			Response.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(JwtException.class)
+	public ResponseEntity<?> jwtTokenException(JwtException e) {
+		return new ResponseEntity<>(
+			Response.of("error", e.getMessage()), HttpStatus.FORBIDDEN);
 	}
 
 }
