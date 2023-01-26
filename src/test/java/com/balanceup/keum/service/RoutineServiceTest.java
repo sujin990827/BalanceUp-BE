@@ -16,7 +16,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
-import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
@@ -266,22 +265,22 @@ public class RoutineServiceTest {
 	@Test
 	void given_RoutineInquireRequest_when_InquireRoutine_thenDoesNotThrow() {
 		//given
-		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
+		Long routineId = 1L;
 		String username = "username";
 
 		//when
 		when(userService.findUserByUsername(username)).thenReturn(mock(User.class));
-		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
+		when(routineRepository.findById(eq(routineId))).thenReturn(Optional.of(mock(Routine.class)));
 
 		//then
-		assertDoesNotThrow(() -> routineService.inquireRoutine(request, username));
+		assertDoesNotThrow(() -> routineService.inquireRoutine(routineId, username));
 	}
 
 	@DisplayName("루틴 상세 조회 테스트(username 이 정확하지 않을 때)")
 	@Test
 	void given_InvalidUsername_when_InquireRoutine_ThrowsUsernameNotFoundException() {
 		//given
-		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
+		Long routineId = 1L;
 		String username = "username";
 
 		//when
@@ -289,23 +288,23 @@ public class RoutineServiceTest {
 
 		//then
 		assertThrows(UsernameNotFoundException.class,
-			() -> routineService.inquireRoutine(request, username));
+			() -> routineService.inquireRoutine(routineId, username));
 	}
 
 	@DisplayName("루틴 상세 조회 테스트(루틴 id가 정확하지 않을 때)")
 	@Test
 	void given_InvalidRoutineId_when_InquireRoutine_ThrowsIllegalArgumentException() {
 		//given
-		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
+		Long routineId = 1L;
 		String username = "username";
 
 		//when
 		when(userService.findUserByUsername(username)).thenReturn(mock(User.class));
-		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.empty());
+		when(routineRepository.findById(eq(routineId))).thenReturn(Optional.empty());
 
 		//then
 		assertThrows(IllegalArgumentException.class,
-			() -> routineService.inquireRoutine(request, username));
+			() -> routineService.inquireRoutine(routineId, username));
 	}
 
 	@DisplayName("루틴 삭제 테스트")

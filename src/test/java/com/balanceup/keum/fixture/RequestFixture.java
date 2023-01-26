@@ -2,7 +2,6 @@ package com.balanceup.keum.fixture;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
-import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
@@ -25,12 +24,6 @@ public class RequestFixture {
 		request.setDays("월화수");
 		request.setAlarmTime("09:00");
 		request.setRoutineCategory("운동");
-		return request;
-	}
-
-	public static RoutineInquireRequest getRoutineInquireRequestFixture() {
-		RoutineInquireRequest request = new RoutineInquireRequest();
-		request.setRoutineId(1L);
 		return request;
 	}
 

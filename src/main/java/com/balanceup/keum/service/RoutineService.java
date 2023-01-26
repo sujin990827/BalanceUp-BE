@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
-import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
@@ -59,9 +58,9 @@ public class RoutineService {
 	}
 
 	@Transactional(readOnly = true)
-	public RoutineResponse inquireRoutine(RoutineInquireRequest request, String username) {
+	public RoutineResponse inquireRoutine(Long routineId, String username) {
 		User user = userService.findUserByUsername(username);
-		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
+		Routine routine = getRoutineByOptional(routineRepository.findById(routineId));
 
 		return RoutineResponse.from(routine, user);
 	}

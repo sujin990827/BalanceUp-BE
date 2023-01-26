@@ -25,7 +25,6 @@ import org.springframework.util.MultiValueMap;
 import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
-import com.balanceup.keum.controller.dto.request.routine.RoutineInquireRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
@@ -324,9 +323,7 @@ public class RoutineControllerTest {
 	@WithMockUser
 	void given_InquireRoutineRequest_when_InquireRoutine_then_ReturnOk() throws Exception {
 		//given
-		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
 		MultiValueMap<String, String> param = new LinkedMultiValueMap<>();
-		param.add("userId", "1");
 		param.add("routineId", "1");
 		String username = "username";
 		String token = "token.token.token";
@@ -334,7 +331,7 @@ public class RoutineControllerTest {
 		//mock
 		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
-		when(routineService.inquireRoutine(request, username)).thenReturn(Mockito.any(RoutineResponse.class));
+		when(routineService.inquireRoutine(1L, username)).thenReturn(Mockito.any(RoutineResponse.class));
 
 		//when & then
 		mockMvc.perform(get("/routine")
@@ -344,7 +341,6 @@ public class RoutineControllerTest {
 					return request1;
 				})
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(request))
 				.params(param)
 			).andDo(print())
 			.andExpect(status().isOk())
@@ -358,17 +354,14 @@ public class RoutineControllerTest {
 	@WithMockUser
 	void given_InvalidRequest_when_InquireRoutine_then_ReturnBadRequest() throws Exception {
 		//given
-		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
 		MultiValueMap<String, String> param = new LinkedMultiValueMap<>();
-		param.add("userId", "1");
 		param.add("routineId", "1");
 		String username = "username";
 		String token = "token.token.token";
 
 		//mock
-		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
-		when(routineService.inquireRoutine(request, username)).thenThrow(new IllegalStateException());
+		when(routineService.inquireRoutine(1L, username)).thenThrow(new IllegalStateException());
 
 		//when & then
 		mockMvc.perform(get("/routine")
@@ -378,7 +371,6 @@ public class RoutineControllerTest {
 					return request1;
 				})
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(request))
 				.params(param)
 			).andDo(print())
 			.andExpect(status().isBadRequest())
@@ -391,14 +383,10 @@ public class RoutineControllerTest {
 	@WithMockUser
 	void given_TotalInquireRoutineRequest_when_TotalInquireRoutine_then_ReturnOk() throws Exception {
 		//given
-		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
-		MultiValueMap<String, String> param = new LinkedMultiValueMap<>();
-		param.add("userId", "1");
 		String username = "username";
 		String token = "token.token.token";
 
 		//mock
-		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
 		when(routineService.totalInquireRoutine(username)).thenReturn(Mockito.anyList());
 
@@ -410,8 +398,6 @@ public class RoutineControllerTest {
 					return request1;
 				})
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(request))
-				.params(param)
 			).andDo(print())
 			.andExpect(status().isOk())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -424,14 +410,10 @@ public class RoutineControllerTest {
 	@WithMockUser
 	void given_InvalidRequest_when_TotalInquireRoutine_then_ReturnBadRequest() throws Exception {
 		//given
-		RoutineInquireRequest request = RequestFixture.getRoutineInquireRequestFixture();
-		MultiValueMap<String, String> param = new LinkedMultiValueMap<>();
-		param.add("userId", "1");
 		String username = "username";
 		String token = "token.token.token";
 
 		//mock
-		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
 		when(routineService.totalInquireRoutine(username)).thenThrow(new IllegalStateException());
 
@@ -443,8 +425,6 @@ public class RoutineControllerTest {
 					return request1;
 				})
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(request))
-				.params(param)
 			).andDo(print())
 			.andExpect(status().isBadRequest())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
