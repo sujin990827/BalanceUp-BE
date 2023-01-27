@@ -97,7 +97,7 @@ public class Routine {
 		this.routineTitle = request.getRoutineTitle();
 		this.days = request.getDays();
 
-		if (isValidTime(alarmTime)) {
+		if (isValidTime(request.getAlarmTime())) {
 			this.alarmTime = request.getAlarmTime();
 			return;
 		}
