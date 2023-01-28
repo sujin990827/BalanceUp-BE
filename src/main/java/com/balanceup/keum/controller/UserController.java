@@ -66,6 +66,15 @@ public class UserController {
 			HttpStatus.OK);
 	}
 
+	@GetMapping("/user")
+	public ResponseEntity<?> inquireUser(HttpServletRequest servletRequest) {
+		String username = jwtTokenUtil.getUserNameByToken(servletRequest.getHeader(HttpHeaders.AUTHORIZATION));
+
+		return new ResponseEntity<>(
+			getSuccessResponse("회원정보 조회가 완료되었습니다.", userService.getUserInfoByUsername(username)),
+			HttpStatus.OK);
+	}
+
 	private static Response<Object> getSuccessResponse(String message, Object body) {
 		return Response.of("success", message, body);
 	}
