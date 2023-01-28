@@ -20,7 +20,6 @@ import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
 import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
-import com.balanceup.keum.controller.dto.request.user.UserNicknameDuplicateRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.fixture.RequestFixture;
@@ -48,14 +47,13 @@ public class UserServiceTest {
 		//given
 		User user = User.of("username", "password", "dog", "google");
 		String nickname1 = "dog";
-		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname1);
 
 		//mock
 		Mockito.when(userRepository.findByNickname(nickname1)).thenReturn(Optional.of(user));
 
 		//when & then
 		IllegalStateException e = assertThrows(IllegalStateException.class,
-			() -> userService.duplicateNickname(request));
+			() -> userService.duplicateNickname(nickname1));
 		assertEquals("이미 존재하는 닉네임입니다.", e.getMessage());
 	}
 
@@ -64,13 +62,12 @@ public class UserServiceTest {
 	void given_NotDuplicateNickname_when_VerifyDuplicateNickname_then_DoesNotThrow() {
 		//given
 		String nickname1 = "dog";
-		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname1);
 
 		//mock
 		Mockito.when(userRepository.findByNickname(nickname1)).thenReturn(Optional.empty());
 
 		//when & then
-		assertDoesNotThrow(() -> userService.duplicateNickname(request));
+		assertDoesNotThrow(() -> userService.duplicateNickname(nickname1));
 	}
 
 	@DisplayName("닉네임이 입력되지 않은 경우 ")
@@ -78,11 +75,10 @@ public class UserServiceTest {
 	void given_NicknameNull_when_DuplicateNickname_then_ThrowException() {
 		//given
 		String nickname = null;
-		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname);
 
 		//when & then
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-			() -> userService.duplicateNickname(request));
+			() -> userService.duplicateNickname(nickname));
 		assertEquals("닉네임이 비어있습니다.", e.getMessage());
 	}
 
@@ -91,11 +87,10 @@ public class UserServiceTest {
 	void given_WrongNicknameLength_when_DuplicateNickname_then_ThrowException() {
 		//given
 		String nickname = "12345678910";
-		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname);
 
 		//when & then
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-			() -> userService.duplicateNickname(request));
+			() -> userService.duplicateNickname(nickname));
 		assertEquals("닉네임의 길이는 11자 이내여야 합니다.", e.getMessage());
 	}
 
@@ -105,14 +100,12 @@ public class UserServiceTest {
 		//given
 		String nickname1 = "       ";
 		String nickname2 = "!@#!@$!@";
-		UserNicknameDuplicateRequest request1 = new UserNicknameDuplicateRequest(nickname1);
-		UserNicknameDuplicateRequest request2 = new UserNicknameDuplicateRequest(nickname2);
 
 		//when & then
 		IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
-			() -> userService.duplicateNickname(request1));
+			() -> userService.duplicateNickname(nickname1));
 		IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
-			() -> userService.duplicateNickname(request2));
+			() -> userService.duplicateNickname(nickname2));
 
 		assertEquals("닉네임은 영어, 한글, 숫자만 가능합니다.", e1.getMessage());
 		assertEquals("닉네임은 영어, 한글, 숫자만 가능합니다.", e2.getMessage());
@@ -235,6 +228,28 @@ public class UserServiceTest {
 
 		//when & then
 		assertDoesNotThrow(() -> userService.reIssue(request, details));
+	}
+
+	@DisplayName("회원 정보 조회 테스트")
+	@Test
+	void given_Username_when_UserInquire_then_DoesNotThrow() {
+		//given
+
+		//when
+
+		//then
+
+	}
+
+	@DisplayName("회원 정보 조회 테스트 - 회원이 존재하지 않을 때")
+	@Test
+	void given_NonexistentUsername_when_UserInquire_then_ThrowsException() {
+		//given
+
+		//when
+
+		//then
+
 	}
 
 }

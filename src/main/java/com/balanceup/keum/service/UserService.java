@@ -13,7 +13,6 @@ import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
 import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
-import com.balanceup.keum.controller.dto.request.user.UserNicknameDuplicateRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.controller.dto.response.user.UserDeleteResponse;
 import com.balanceup.keum.controller.dto.response.user.UserResponse;
@@ -49,14 +48,14 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public String duplicateNickname(UserNicknameDuplicateRequest dto) {
-		isValidNickname(dto.getNickname());
+	public String duplicateNickname(String nickname) {
+		isValidNickname(nickname);
 
-		if (userRepository.findByNickname(dto.getNickname()).isPresent()) {
+		if (userRepository.findByNickname(nickname).isPresent()) {
 			throw new IllegalStateException("이미 존재하는 닉네임입니다.");
 		}
 
-		return dto.getNickname();
+		return nickname;
 	}
 
 	public TokenDto reIssue(ReIssueRequest request, UserDetails userDetails) {

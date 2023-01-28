@@ -6,16 +6,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.balanceup.keum.config.auth.PrincipalDetailService;
 import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
 import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
-import com.balanceup.keum.controller.dto.request.user.UserNicknameDuplicateRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.controller.dto.response.Response;
 import com.balanceup.keum.service.UserService;
@@ -32,14 +33,15 @@ public class UserController {
 	private final PrincipalDetailService principalDetailService;
 	private final JwtTokenUtil jwtTokenUtil;
 
-	@PostMapping("/user/nickname")
-	public ResponseEntity<?> duplicateNickname(@RequestBody UserNicknameDuplicateRequest request) {
-		return new ResponseEntity<>(getSuccessResponse("닉네임 중복 확인 성공", userService.duplicateNickname(request)),
+	@GetMapping("/nicknames")
+	public ResponseEntity<?> duplicateNickname(@RequestParam String nickname) {
+		return new ResponseEntity<>(getSuccessResponse("닉네임 중복 확인 성공", userService.duplicateNickname(nickname)),
 			HttpStatus.OK);
 	}
 
 	@PutMapping("/user/nickname")
-	public ResponseEntity<?> updateNickname(@RequestBody UserNicknameUpdateRequest request, HttpServletRequest servletRequest) {
+	public ResponseEntity<?> updateNickname(@RequestBody UserNicknameUpdateRequest request,
+		HttpServletRequest servletRequest) {
 		String username = jwtTokenUtil.getUserNameByToken(servletRequest.getHeader(HttpHeaders.AUTHORIZATION));
 
 		return new ResponseEntity<>(getSuccessResponse("닉네임 업데이트 성공", userService.updateNickname(request, username)),

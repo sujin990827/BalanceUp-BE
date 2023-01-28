@@ -28,7 +28,6 @@ import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
 import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
-import com.balanceup.keum.controller.dto.request.user.UserNicknameDuplicateRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.controller.dto.response.user.UserDeleteResponse;
 import com.balanceup.keum.controller.dto.response.user.UserResponse;
@@ -63,16 +62,14 @@ public class UserControllerTest {
 	void given_UserNicknameRequest_when_VerifyDuplicateNickname_then_ReturnOk() throws Exception {
 		//given
 		String nickname = "nickname";
-		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname);
 
 		//mock
-		when(userService.duplicateNickname(request)).thenReturn(nickname);
+		when(userService.duplicateNickname(nickname)).thenReturn(nickname);
 
 		//when & then
-		mockMvc.perform(post("/user/nickname")
+		mockMvc.perform(get("/nicknames")
 				.with(csrf())
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(request))
+				.param("nickname", nickname)
 			).andDo(print())
 			.andExpect(status().isOk())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -86,17 +83,15 @@ public class UserControllerTest {
 	void given_DuplicateUserNicknameRequest_when_VerifyDuplicateNickname_then_ReturnBadRequest() throws Exception {
 		//given
 		String nickname = "nickname";
-		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname);
 
 		//when
-		when(userService.duplicateNickname(Mockito.any(UserNicknameDuplicateRequest.class))).thenThrow(
+		when(userService.duplicateNickname(nickname)).thenThrow(
 			IllegalStateException.class);
 
 		//then
-		mockMvc.perform(post("/user/nickname")
+		mockMvc.perform(get("/nicknames")
 				.with(csrf())
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(request))
+				.param("nickname", nickname)
 			).andDo(print())
 			.andExpect(status().isBadRequest())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -109,17 +104,15 @@ public class UserControllerTest {
 	void given_WrongNickname_when_VerifyDuplicateNickname_then_ReturnBadRequest() throws Exception {
 		//given
 		String nickname = "wrongNickname";
-		UserNicknameDuplicateRequest request = new UserNicknameDuplicateRequest(nickname);
 
 		//when
-		when(userService.duplicateNickname(Mockito.any(UserNicknameDuplicateRequest.class))).thenThrow(
+		when(userService.duplicateNickname(nickname)).thenThrow(
 			IllegalArgumentException.class);
 
 		//then
-		mockMvc.perform(post("/user/nickname")
+		mockMvc.perform(get("/nicknames")
 				.with(csrf())
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(request))
+				.param("nickname", nickname)
 			).andDo(print())
 			.andExpect(status().isBadRequest())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
