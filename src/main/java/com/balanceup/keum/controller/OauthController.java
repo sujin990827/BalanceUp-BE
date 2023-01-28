@@ -12,7 +12,7 @@ import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.user.UserJoinRequest;
 import com.balanceup.keum.controller.dto.request.user.UserLoginRequest;
 import com.balanceup.keum.controller.dto.response.Response;
-import com.balanceup.keum.controller.dto.response.user.UserInfoResponse;
+import com.balanceup.keum.controller.dto.response.user.UserOauthResponse;
 import com.balanceup.keum.service.GoogleService;
 import com.balanceup.keum.service.KakaoService;
 
@@ -31,7 +31,7 @@ public class OauthController {
 	public ResponseEntity<?> getKakaoUserInfo(@RequestParam String accessToken) {
 		return new ResponseEntity<>(
 			Response.of("success", "유저 정보 받아오기 성공",
-				new UserInfoResponse(kakaoService.getUserInfo(accessToken))), HttpStatus.OK
+				new UserOauthResponse(kakaoService.getUserInfo(accessToken))), HttpStatus.OK
 		);
 	}
 
@@ -56,7 +56,7 @@ public class OauthController {
 	public ResponseEntity<?> getGoogleUserInfo(@RequestParam String accessToken) {
 		return new ResponseEntity<>(
 			Response.of("success", "유저 정보 받아오기 성공",
-				new UserInfoResponse(googleService.getUserInfo(accessToken))), HttpStatus.OK
+				new UserOauthResponse(googleService.getUserInfo(accessToken))), HttpStatus.OK
 		);
 	}
 

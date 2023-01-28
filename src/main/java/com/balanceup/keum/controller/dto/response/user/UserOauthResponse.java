@@ -11,13 +11,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class UserInfoResponse {
+public class UserOauthResponse {
 
 	private String username;
 	private String provider;
 	private String login;
 
-	public UserInfoResponse(Map<String, String> info) {
+	public UserOauthResponse(Map<String, String> info) {
 		this.username = info.get("username");
 		this.provider = info.get("provider");
 		this.login = info.get("login");
