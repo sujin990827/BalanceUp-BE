@@ -243,24 +243,6 @@ public class RoutineServiceTest {
 		assertEquals("루틴명이 입력되지 않았습니다.", e.getMessage());
 	}
 
-	@DisplayName("루틴 수정 테스트 (진행요일이 입력되지 않았을 때)")
-	@Test
-	void given_InvalidRoutineDays_when_UpdateRoutine_then_ThrowIllegalArgumentException() {
-		//given
-		RoutineUpdateRequest request = RequestFixture.getRoutineUpdateRequestFixture();
-		request.setDays(null);
-		String username = "username";
-
-		//when
-		when(userService.findUserByUsername(username)).thenReturn(mock(User.class));
-		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
-
-		//then
-		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-			() -> routineService.updateRoutine(request, username));
-		assertEquals("진행 요일이 입력되지 않았습니다.", e.getMessage());
-	}
-
 	@DisplayName("루틴 상세 조회 테스트")
 	@Test
 	void given_RoutineInquireRequest_when_InquireRoutine_thenDoesNotThrow() {

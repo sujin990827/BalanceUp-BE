@@ -13,7 +13,6 @@ public class RequestFixture {
 		RoutineUpdateRequest request = new RoutineUpdateRequest();
 		request.setRoutineId(1L);
 		request.setRoutineTitle("title");
-		request.setDays("월화수");
 		request.setAlarmTime("09:00");
 		return request;
 	}

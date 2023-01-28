@@ -95,7 +95,6 @@ public class Routine {
 
 	public void update(RoutineUpdateRequest request) {
 		this.routineTitle = request.getRoutineTitle();
-		this.days = request.getDays();
 
 		if (isValidTime(request.getAlarmTime())) {
 			this.alarmTime = request.getAlarmTime();

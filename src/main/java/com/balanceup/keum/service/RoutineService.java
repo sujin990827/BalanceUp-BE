@@ -105,10 +105,6 @@ public class RoutineService {
 		if (isNull(request.getRoutineTitle())) {
 			throw new IllegalArgumentException("루틴명이 입력되지 않았습니다.");
 		}
-
-		if (isNull(request.getDays())) {
-			throw new IllegalArgumentException("진행 요일이 입력되지 않았습니다.");
-		}
 	}
 
 	private void isValidMakeRequest(RoutineMakeRequest request) {

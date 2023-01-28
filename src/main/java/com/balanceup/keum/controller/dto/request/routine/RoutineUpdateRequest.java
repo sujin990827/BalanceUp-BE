@@ -11,7 +11,6 @@ public class RoutineUpdateRequest {
 
 	private Long routineId;
 	private String routineTitle;
-	private String days;
 	private String alarmTime;
 
 }
