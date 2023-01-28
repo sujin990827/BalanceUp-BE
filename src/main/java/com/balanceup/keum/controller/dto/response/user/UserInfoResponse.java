@@ -13,10 +13,10 @@ import lombok.Setter;
 @Setter
 public class UserInfoResponse {
 
-	private String username;
+	private String nickname;
 	private Integer rp;
 
 	public static UserInfoResponse of(User user) {
-		return new UserInfoResponse(user.getUsername(), user.getRp());
+		return new UserInfoResponse(user.getNickname(), user.getRp());
 	}
 }
