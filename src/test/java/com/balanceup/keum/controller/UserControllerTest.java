@@ -1,6 +1,7 @@
 package com.balanceup.keum.controller;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -344,6 +345,58 @@ public class UserControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.resultCode", containsString("success")))
 			.andExpect(jsonPath("$.message", containsString("회원탈퇴가 완료되었습니다.")));
+	}
+
+	@DisplayName("[API][GET] 유저 정보 조회 테스트 ")
+	@Test
+	@WithMockUser
+	void given_Username_when_UserInfoRequire_then_ReturnOk() throws Exception {
+		//given
+		String username = "username";
+		String token = "token";
+
+		//mock
+		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
+		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
+		when(userService.getUserInfoByUsername(anyString())).thenReturn(any());
+
+		//when & then
+		mockMvc.perform(get("/user")
+				.with(csrf())
+				.with(request1 -> {
+					request1.addHeader(HttpHeaders.AUTHORIZATION, token);
+					return request1;
+				})
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.resultCode", containsString("success")));
+	}
+
+	@DisplayName("[API][GET] 유저 정보 조회 테스트 - 비즈니스 로직 에러")
+	@Test
+	@WithMockUser
+	void given_NonexistentUsername_when_UserInfoRequire_then_ReturnBadRequest() throws Exception {
+		//given
+		String username = "username";
+		String token = "token";
+
+		//mock
+		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
+		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
+		when(userService.getUserInfoByUsername(anyString())).thenThrow(new IllegalStateException());
+
+		//when & then
+		mockMvc.perform(get("/user")
+				.with(csrf())
+				.with(request1 -> {
+					request1.addHeader(HttpHeaders.AUTHORIZATION, token);
+					return request1;
+				})
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.resultCode", containsString("error")));
 	}
 
 	private static ReIssueRequest getReIssueRequestFixture() {
