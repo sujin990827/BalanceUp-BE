@@ -19,7 +19,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
-import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.fixture.RequestFixture;
@@ -148,15 +147,13 @@ public class UserServiceTest {
 	@Test
 	void given_NonExistentUser_when_DeleteUser_then_Throw() {
 		//given
-		UserDeleteRequest request = new UserDeleteRequest();
 		String username = "username";
-		request.setUsername(username);
 
 		//when
 		when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
 		//then
-		IllegalStateException e = assertThrows(IllegalStateException.class, () -> userService.delete(request));
+		IllegalStateException e = assertThrows(IllegalStateException.class, () -> userService.delete(username));
 		assertEquals("사용자가 정확하지 않습니다.", e.getMessage());
 	}
 
@@ -164,15 +161,13 @@ public class UserServiceTest {
 	@Test
 	void given_UserInfo_when_DeleteUser_then_DoesNotThrow() {
 		//given
-		UserDeleteRequest request = new UserDeleteRequest();
 		String username = "username";
-		request.setUsername(username);
 
 		//when
 		when(userRepository.findByUsername(username)).thenReturn(Optional.of(mock(User.class)));
 
 		//then
-		assertDoesNotThrow(() -> userService.delete(request));
+		assertDoesNotThrow(() -> userService.delete(username));
 	}
 
 	@DisplayName("Refresh 토큰 테스트 - 토큰 만료시")
@@ -234,22 +229,27 @@ public class UserServiceTest {
 	@Test
 	void given_Username_when_UserInquire_then_DoesNotThrow() {
 		//given
+		String username = "username";
 
 		//when
+		when(userRepository.findByUsername(username)).thenReturn(Optional.of(mock(User.class)));
 
 		//then
-
+		assertDoesNotThrow(() -> userService.getUserInfoByUsername(username));
 	}
 
 	@DisplayName("회원 정보 조회 테스트 - 회원이 존재하지 않을 때")
 	@Test
 	void given_NonexistentUsername_when_UserInquire_then_ThrowsException() {
 		//given
+		String username = "username";
 
 		//when
+		when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
 		//then
-
+		assertThrows(IllegalStateException.class,
+			() -> userService.getUserInfoByUsername(username));
 	}
 
 }
