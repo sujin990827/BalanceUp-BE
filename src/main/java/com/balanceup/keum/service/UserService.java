@@ -14,6 +14,7 @@ import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.controller.dto.response.user.UserDeleteResponse;
+import com.balanceup.keum.controller.dto.response.user.UserInfoResponse;
 import com.balanceup.keum.controller.dto.response.user.UserResponse;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.RedisRepository;
@@ -83,6 +84,13 @@ public class UserService {
 	public User findUserByUsername(String username) {
 		return userRepository.findByUsername(username)
 			.orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 user 입니다."));
+	}
+
+	@Transactional(readOnly = true)
+	public UserInfoResponse getUserInfoByUsername(String username) {
+		User user = getUserByUsername(username);
+
+		return UserInfoResponse.of(user);
 	}
 
 	private User getUserByUsername(String username) {
