@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
-import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.controller.dto.response.user.UserDeleteResponse;
 import com.balanceup.keum.controller.dto.response.user.UserResponse;
@@ -74,8 +73,8 @@ public class UserService {
 	}
 
 	@Transactional
-	public UserDeleteResponse delete(UserDeleteRequest request) {
-		User user = getUserByUsername(request.getUsername());
+	public UserDeleteResponse delete(String username) {
+		User user = getUserByUsername(username);
 		user.withdraw();
 		return UserDeleteResponse.from(user);
 	}

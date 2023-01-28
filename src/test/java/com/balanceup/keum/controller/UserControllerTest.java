@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -27,7 +28,6 @@ import com.balanceup.keum.config.auth.PrincipalDetailService;
 import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
-import com.balanceup.keum.controller.dto.request.user.UserDeleteRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.controller.dto.response.user.UserDeleteResponse;
 import com.balanceup.keum.controller.dto.response.user.UserResponse;
@@ -124,14 +124,15 @@ public class UserControllerTest {
 	@WithMockUser
 	void given_UpdateNicknameRequest_when_UpdateNickname_then_ReturnOk() throws Exception {
 		//given
-		String userName = "userName";
+		String username = "username";
 		String nickname = "nickname";
 		String token = "token.token.token";
 		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname);
 
 		//mock
-		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(userName);
-		when(userService.updateNickname(request, userName)).thenReturn(mock(UserResponse.class));
+		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
+		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
+		when(userService.updateNickname(request, username)).thenReturn(mock(UserResponse.class));
 
 		//when & then
 		mockMvc.perform(put("/user/nickname")
@@ -153,10 +154,12 @@ public class UserControllerTest {
 		//given
 		String nickname = "nickname";
 		String token = "token.token.token";
+		String username = "username";
 		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname);
 
 		//mock
-		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn("username");
+		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
+		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
 		when(userService.updateNickname(Mockito.any(UserNicknameUpdateRequest.class), anyString())).thenThrow(
 			IllegalArgumentException.class);
 
@@ -181,14 +184,16 @@ public class UserControllerTest {
 	@WithMockUser
 	void given_WrongNickname_when_UpdateNickname_then_ReturnBadRequest() throws Exception {
 		//given
-		String nickname = "nickname";
+		String nickname = "wrongNickname";
+		String username = "username";
 		String token = "token.token.token";
 		UserNicknameUpdateRequest request = new UserNicknameUpdateRequest(nickname);
 
 		//mock
-		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn("username");
+		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
+		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
 		when(userService.updateNickname(Mockito.any(UserNicknameUpdateRequest.class), anyString())).thenThrow(
-			IllegalArgumentException.class);
+			new IllegalStateException());
 
 		//when & then
 		mockMvc.perform(put("/user/nickname")
@@ -201,7 +206,6 @@ public class UserControllerTest {
 				.content(objectMapper.writeValueAsBytes(request))
 				.header(HttpHeaders.AUTHORIZATION, token)
 			).andDo(print())
-
 			.andExpect(status().isBadRequest())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.resultCode", containsString("error")));
@@ -291,55 +295,53 @@ public class UserControllerTest {
 			.andExpect(jsonPath("$.resultCode", containsString("error")));
 	}
 
-	@DisplayName("[API][PUT] 회원 탈퇴 테스트 (로그인한 유저는 잘못된 유저) - 실패")
+	@DisplayName("[API][DELETE] 회원 탈퇴 테스트 (로그인한 유저는 잘못된 유저) - 실패")
 	@Test
 	void given_NonExistentUser_when_DeleteUser_then_ReturnBadRequest() throws Exception {
 		//given
 		String username = "username";
-		UserDeleteRequest request = new UserDeleteRequest(username);
 		String token = "token.token.token";
 
 		//mock
-		when(userService.delete(Mockito.any(UserDeleteRequest.class))).thenThrow(IllegalStateException.class);
+		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
+		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
+		when(userService.delete(username)).thenThrow(new IllegalStateException());
 
 		//when & then
-		mockMvc.perform(put("/withdraw")
+		mockMvc.perform(delete("/withdraw")
 				.with(csrf())
 				.with(request1 -> {
 					request1.addHeader(HttpHeaders.AUTHORIZATION, token);
 					return request1;
 				})
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(request))
 			).andDo(print())
 			.andExpect(status().isBadRequest())
-			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.resultCode", containsString("error")));
 	}
 
-	@DisplayName("[API][PUT] 회원 탈퇴 테스트 - 성공")
+	@DisplayName("[API][DELETE] 회원 탈퇴 테스트 - 성공")
 	@Test
 	void given_Username_when_DeleteUser_then_ReturnOk() throws Exception {
 		//given
 		String username = "username";
-		UserDeleteRequest request = new UserDeleteRequest(username);
 		String token = "token.token.token";
 
 		//mock
-		when(userService.delete(request)).thenReturn(mock(UserDeleteResponse.class));
+		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
+		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
+		when(userService.delete(anyString())).thenReturn(ArgumentMatchers.any(UserDeleteResponse.class));
 
 		//when & then
-		mockMvc.perform(put("/withdraw")
+		mockMvc.perform(delete("/withdraw")
 				.with(csrf())
 				.with(request1 -> {
 					request1.addHeader(HttpHeaders.AUTHORIZATION, token);
 					return request1;
 				})
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsBytes(request))
 			).andDo(print())
 			.andExpect(status().isOk())
-			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.resultCode", containsString("success")))
 			.andExpect(jsonPath("$.message", containsString("회원탈퇴가 완료되었습니다.")));
 	}
