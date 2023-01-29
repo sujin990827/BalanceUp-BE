@@ -82,7 +82,7 @@ public class RoutineService {
 		user.earnRp(1);
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public void allDoneRoutine(RoutineAllDoneRequest request, String username) {
 		User user = userService.findUserByUsername(username);
 		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));

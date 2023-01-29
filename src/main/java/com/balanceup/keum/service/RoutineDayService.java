@@ -34,7 +34,7 @@ public class RoutineDayService {
 		for (RoutineDay routineDay : routineDays) {
 			if (routineDay.isToday(today)) {
 				if (routineDay.isCompleted()) {
-					throw new IllegalStateException("이미 진행된 루틴입니다.");
+					throw new IllegalStateException("이미 진행된 루틴 날짜입니다.");
 				}
 
 				routineDay.progress();

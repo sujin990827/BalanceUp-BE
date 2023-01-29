@@ -30,10 +30,11 @@ public class RoutineDay {
 	@Temporal(TemporalType.DATE)
 	private Date day;
 
-	private boolean completed = false;
+	private boolean completed;
 
 	private RoutineDay(Timestamp day) {
 		this.day = day;
+		this.completed = false;
 	}
 
 	public boolean isToday(String today) {

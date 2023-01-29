@@ -2,8 +2,10 @@ package com.balanceup.keum.domain;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -58,7 +60,7 @@ public class Routine {
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	List<RoutineDay> routineDays;
 
-	private Boolean completed = false;
+	private Boolean completed;
 
 	@Column(name = "alarm_time")
 	private String alarmTime;
@@ -83,6 +85,7 @@ public class Routine {
 		this.days = days;
 		this.routineDays = routineDays;
 		this.user = user;
+		this.completed = false;
 
 		if (isValidTime(alarmTime)) {
 			this.alarmTime = alarmTime;
@@ -130,17 +133,19 @@ public class Routine {
 		return Day.of(this.days);
 	}
 
-	public void completeRoutine() {
-		this.completed = true;
-	}
-
 	public void isAllDone() {
+		if (!completed) {
+			throw new IllegalStateException("이미 진행된 루틴입니다.");
+		}
+
 		List<Day> daysList = Day.of(days);
 		int count = getCompleteCount(daysList);
 
 		if (count != daysList.size() * 2) {
 			throw new IllegalStateException("루틴이 완료되지 않았습니다.");
 		}
+
+		this.completed = true;
 	}
 
 	private int getCompleteCount(List<Day> daysList) {
@@ -152,7 +157,7 @@ public class Routine {
 			int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
 
 			for (Day day : daysList) {
-				if (dayOfWeek == day.getDayOfTheWeek() && this.completed) {
+				if (dayOfWeek == day.getDayOfTheWeek() && routineDay.isCompleted()) {
 					count++;
 					break;
 				}
@@ -172,4 +177,22 @@ public class Routine {
 		this.modifiedAt = Timestamp.from(Instant.now());
 	}
 
+	public List<RoutineDay> getRoutineDaysWithFiltering() {
+		List<RoutineDay> copyRoutineDays = new CopyOnWriteArrayList<>(routineDays);
+		List<RoutineDay> filteringRoutineDays = new ArrayList<>();
+
+		for (RoutineDay routineDay : copyRoutineDays) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(routineDay.getDay());
+			int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+
+			for (Day day : getDayList()) {
+				if (day.getDayOfTheWeek() == dayOfWeek) {
+					filteringRoutineDays.add(routineDay);
+					break;
+				}
+			}
+		}
+		return filteringRoutineDays;
+	}
 }
