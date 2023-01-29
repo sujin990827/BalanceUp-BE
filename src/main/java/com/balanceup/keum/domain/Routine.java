@@ -210,14 +210,30 @@ public class Routine {
 					routineDay.cancel();
 					this.completed = false;
 					user.decreaseRp(21);
-				} else {
-					routineDay.cancel();
-					user.decreaseRp(1);
+					return;
 				}
 
+				routineDay.cancel();
+				user.decreaseRp(1);
 				return;
 			}
 		}
 		throw new IllegalStateException("선택한 날짜는 루틴 진행 날짜가 아닙니다.");
+	}
+
+	public void countCompletedDaysAndDecreaseRp() {
+		int completedCount = 0;
+		for (RoutineDay routineDay : routineDays) {
+			if (routineDay.isCompleted()) {
+				completedCount++;
+			}
+		}
+
+		if (this.completed) {
+			user.decreaseRp(20 + completedCount);
+			return;
+		}
+
+		user.decreaseRp(completedCount);
 	}
 }

@@ -70,7 +70,7 @@ public class RoutineService {
 	public void deleteRoutine(RoutineDeleteRequest request, String username) {
 		userService.findUserByUsername(username);
 		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
-
+		routine.countCompletedDaysAndDecreaseRp();
 		routineRepository.delete(routine);
 	}
 

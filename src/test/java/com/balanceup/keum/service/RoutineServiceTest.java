@@ -298,8 +298,10 @@ public class RoutineServiceTest {
 		String username = "username";
 
 		//when
+		Routine mockRoutine = mock(Routine.class);
 		when(userService.findUserByUsername(username)).thenReturn(mock(User.class));
-		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
+		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mockRoutine));
+		doNothing().when(mockRoutine).countCompletedDaysAndDecreaseRp();
 		doNothing().when(routineRepository).delete(any(Routine.class));
 
 		//then
