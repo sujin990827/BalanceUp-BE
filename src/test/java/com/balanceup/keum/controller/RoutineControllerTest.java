@@ -1,6 +1,7 @@
 package com.balanceup.keum.controller;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -24,6 +25,7 @@ import org.springframework.util.MultiValueMap;
 
 import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
+import com.balanceup.keum.controller.dto.request.routine.RoutineCancelRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
@@ -477,6 +479,64 @@ public class RoutineControllerTest {
 
 		//when & then
 		mockMvc.perform(delete("/routine")
+				.with(csrf())
+				.with(request1 -> {
+					request1.addHeader(HttpHeaders.AUTHORIZATION, token);
+					return request1;
+				})
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(request))
+			).andDo(print())
+			.andExpect(status().isBadRequest())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.resultCode", containsString("error")));
+	}
+
+	@DisplayName("[API][PUT] 루틴 취소 테스트")
+	@Test
+	@WithMockUser
+	void given_RoutineCancelRequest_when_CancelRoutine_then_ReturnOk() throws Exception {
+		//given
+		RoutineCancelRequest request = RequestFixture.getRoutineCancelRequestFixture();
+		String username = "username";
+		String token = "token.token.token";
+
+		//mock
+		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
+		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
+		doNothing().when(routineService).cancelRoutine(request, username);
+
+		//when & then
+		mockMvc.perform(put("/cancel")
+				.with(csrf())
+				.with(request1 -> {
+					request1.addHeader(HttpHeaders.AUTHORIZATION, token);
+					return request1;
+				})
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(request))
+			).andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.resultCode", containsString("success")));
+	}
+
+	@DisplayName("[API][PUT] 루틴 취소 테스트 - 비즈니스로직 에러")
+	@Test
+	@WithMockUser
+	void given_InvalidCancelRequest_when_CancelRoutine_then_ReturnBadRequest() throws Exception {
+		//given
+		RoutineCancelRequest request = RequestFixture.getRoutineCancelRequestFixture();
+		String username = "username";
+		String token = "token.token.token";
+
+		//mock
+		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
+		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
+		doThrow(new IllegalStateException()).when(routineService).cancelRoutine(any(), anyString());
+
+		//when & then
+		mockMvc.perform(put("/cancel")
 				.with(csrf())
 				.with(request1 -> {
 					request1.addHeader(HttpHeaders.AUTHORIZATION, token);

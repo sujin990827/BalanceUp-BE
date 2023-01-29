@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
+import com.balanceup.keum.controller.dto.request.routine.RoutineCancelRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
@@ -396,7 +397,7 @@ public class RoutineServiceTest {
 
 	@DisplayName("루틴 전체 조회 테스트")
 	@Test
-	void given_RoutineTotalInquireRequest_when_TotalInquireRoutine_thenDoesNotThrow() {
+	void given_RoutineTotalInquireRequest_when_TotalInquireRoutine_then_DoesNotThrow() {
 		//given
 		String username = "username";
 
@@ -411,7 +412,7 @@ public class RoutineServiceTest {
 
 	@DisplayName("루틴 전체 조회 테스트 (유저 id가 정확하지 않을 때)")
 	@Test
-	void given_RoutineTotalInquireRequest_when_TotalInquireRoutine_Throw() {
+	void given_RoutineTotalInquireRequest_when_TotalInquireRoutine_ThrowIllegalStateException() {
 		//given
 		String username = "username";
 
@@ -421,6 +422,43 @@ public class RoutineServiceTest {
 		//then
 		assertThrows(IllegalStateException.class,
 			() -> routineService.totalInquireRoutine(username));
+	}
+
+	@DisplayName("루틴 취소 테스트")
+	@Test
+	void given_RoutineCancelRequest_when_CancelRoutine_then_DoesNotThrow() {
+		//given
+		String username = "username";
+		RoutineCancelRequest request = RequestFixture.getRoutineCancelRequestFixture();
+
+		//when
+		User mockUser = mock(User.class);
+		Routine mockRoutine = mock(Routine.class);
+		when(userService.findUserByUsername(username)).thenReturn(mockUser);
+		when(routineRepository.findById(request.getRoutineId())).thenReturn(Optional.of(mockRoutine));
+		doNothing().when(mockRoutine).cancel(request.getDay());
+
+		//then
+		assertDoesNotThrow(() -> routineService.cancelRoutine(request, username));
+	}
+
+	@DisplayName("루틴 취소 테스트 - 완료되지 않은 루틴이거나, 해당 날짜에 진행된 루틴이 없는 경우")
+	@Test
+	void given_RoutineCancelRequest_when_CancelNotCompletedRoutine_then_DoesNotThrow() {
+		//given
+		String username = "username";
+		RoutineCancelRequest request = RequestFixture.getRoutineCancelRequestFixture();
+
+		//when
+		User mockUser = mock(User.class);
+		Routine mockRoutine = mock(Routine.class);
+		when(userService.findUserByUsername(username)).thenReturn(mockUser);
+		when(routineRepository.findById(request.getRoutineId())).thenReturn(Optional.of(mockRoutine));
+		doThrow(new IllegalStateException()).when(mockRoutine).cancel(request.getDay());
+
+		//then
+		assertThrows(IllegalStateException.class,
+			() -> routineService.cancelRoutine(request, username));
 	}
 
 }
