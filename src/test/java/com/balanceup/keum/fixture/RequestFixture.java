@@ -1,6 +1,9 @@
 package com.balanceup.keum.fixture;
 
+import java.util.Date;
+
 import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
+import com.balanceup.keum.controller.dto.request.routine.RoutineCancelRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
@@ -49,6 +52,13 @@ public class RequestFixture {
 		request.setUsername("username");
 		request.setToken("accessToken");
 		request.setRefreshToken("refreshToken");
+		return request;
+	}
+
+	public static RoutineCancelRequest getRoutineCancelRequestFixture() {
+		RoutineCancelRequest request = new RoutineCancelRequest();
+		request.setRoutineId(1L);
+		request.setDay(new Date());
 		return request;
 	}
 }

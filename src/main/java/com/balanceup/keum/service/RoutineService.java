@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.balanceup.keum.controller.dto.request.routine.RoutineAllDoneRequest;
+import com.balanceup.keum.controller.dto.request.routine.RoutineCancelRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineDeleteRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
@@ -99,6 +100,13 @@ public class RoutineService {
 		return routine.stream()
 			.map(RoutineTotalResponse::of)
 			.collect(Collectors.toList());
+	}
+
+	@Transactional
+	public void cancelRoutine(RoutineCancelRequest request, String username) {
+		userService.findUserByUsername(username);
+		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
+		routine.cancel(request.getDay());
 	}
 
 	private static void isValidUpdateRequest(RoutineUpdateRequest request) {

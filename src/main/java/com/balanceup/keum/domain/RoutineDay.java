@@ -50,4 +50,7 @@ public class RoutineDay {
 		this.completed = true;
 	}
 
+	public void cancel() {
+		this.completed = false;
+	}
 }

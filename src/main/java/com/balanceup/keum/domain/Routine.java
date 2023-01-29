@@ -1,9 +1,11 @@
 package com.balanceup.keum.domain;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -194,5 +196,28 @@ public class Routine {
 			}
 		}
 		return filteringRoutineDays;
+	}
+
+	public void cancel(Date day) {
+		String cancelDay = new SimpleDateFormat("yyyy-MM-dd").format(day);
+		for (RoutineDay routineDay : routineDays) {
+			if (routineDay.isToday(cancelDay)) {
+				if (!routineDay.isCompleted()) {
+					throw new IllegalStateException("선택한 날짜는 루틴이 완료되지 않았습니다.");
+				}
+
+				if (this.completed) {
+					routineDay.cancel();
+					this.completed = false;
+					user.decreaseRp(21);
+				} else {
+					routineDay.cancel();
+					user.decreaseRp(1);
+				}
+
+				return;
+			}
+		}
+		throw new IllegalStateException("선택한 날짜는 루틴 진행 날짜가 아닙니다.");
 	}
 }

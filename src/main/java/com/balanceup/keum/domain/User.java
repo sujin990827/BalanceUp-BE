@@ -90,4 +90,10 @@ public class User {
 		this.modifiedAt = Timestamp.from(Instant.now());
 	}
 
+	public void decreaseRp(int rp) {
+		if (rp > this.rp) {
+			throw new IllegalStateException("rp가 음수가 됩니다. 잘못된 요청입니다.");
+		}
+		this.rp -= rp;
+	}
 }
