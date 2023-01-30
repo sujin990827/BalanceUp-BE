@@ -91,7 +91,7 @@ public class RoutineController {
 			), HttpStatus.OK);
 	}
 
-	@DeleteMapping("routine")
+	@DeleteMapping("/routine")
 	public ResponseEntity<?> deleteRoutine(
 		@RequestBody RoutineDeleteRequest request,
 		@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken) {
