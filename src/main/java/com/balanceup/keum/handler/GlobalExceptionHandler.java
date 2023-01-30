@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(JwtException.class)
 	public ResponseEntity<?> jwtTokenException(JwtException e) {
 		return new ResponseEntity<>(
-			Response.of("error", e.getMessage()), HttpStatus.FORBIDDEN);
+			Response.of("error", "jwt 토큰이 만료되었습니다."), HttpStatus.FORBIDDEN);
 	}
 
 }
