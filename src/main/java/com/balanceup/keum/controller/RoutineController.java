@@ -1,7 +1,5 @@
 package com.balanceup.keum.controller;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +20,9 @@ import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
 import com.balanceup.keum.controller.dto.response.Response;
+import com.balanceup.keum.domain.User;
 import com.balanceup.keum.service.RoutineService;
+import com.balanceup.keum.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class RoutineController {
 
 	private final RoutineService routineService;
+	private final UserService userService;
 	private final JwtTokenUtil jwtTokenUtil;
 
 	@PostMapping("/routine")
@@ -39,11 +40,12 @@ public class RoutineController {
 		@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken) {
 
 		String username = jwtTokenUtil.getUserNameByToken(jwtToken);
+		User user = userService.findUserByUsername(username);
 
 		return new ResponseEntity<>(
 			Response.of("success",
 				"루틴 생성이 완료되었습니다.",
-				routineService.makeRoutine(request, username)
+				routineService.makeRoutine(request, user)
 			), HttpStatus.CREATED);
 	}
 
@@ -53,11 +55,12 @@ public class RoutineController {
 		@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken) {
 
 		String username = jwtTokenUtil.getUserNameByToken(jwtToken);
+		User user = userService.findUserByUsername(username);
 
 		return new ResponseEntity<>(
 			Response.of("success",
 				"루틴 수정이 완료되었습니다.",
-				routineService.updateRoutine(request, username)
+				routineService.updateRoutine(request, user)
 			), HttpStatus.OK);
 	}
 
@@ -67,8 +70,9 @@ public class RoutineController {
 		@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken) {
 
 		String username = jwtTokenUtil.getUserNameByToken(jwtToken);
+		User user = userService.findUserByUsername(username);
+		routineService.progressRoutine(request, user);
 
-		routineService.progressRoutine(request, username);
 		return new ResponseEntity<>(
 			Response.of("success",
 				"루틴 진행이 완료되었습니다. 1rp 상승",
@@ -82,8 +86,9 @@ public class RoutineController {
 		@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken) {
 
 		String username = jwtTokenUtil.getUserNameByToken(jwtToken);
+		User user = userService.findUserByUsername(username);
 
-		routineService.allDoneRoutine(request, username);
+		routineService.allDoneRoutine(request, user);
 		return new ResponseEntity<>(
 			Response.of("success",
 				"루틴 전체 진행이 완료되었습니다. 20rp 상승",
@@ -97,8 +102,9 @@ public class RoutineController {
 		@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken) {
 
 		String username = jwtTokenUtil.getUserNameByToken(jwtToken);
+		userService.findUserByUsername(username);
 
-		routineService.deleteRoutine(request, username);
+		routineService.deleteRoutine(request);
 		return new ResponseEntity<>(
 			Response.of("success",
 				"루틴 삭제가 완료되었습니다.",
@@ -112,23 +118,25 @@ public class RoutineController {
 		@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken) {
 
 		String username = jwtTokenUtil.getUserNameByToken(jwtToken);
+		User user = userService.findUserByUsername(username);
 
 		return new ResponseEntity<>(
 			Response.of("success",
 				"루틴 조회가 완료되었습니다.",
-				routineService.inquireRoutine(routineId, username)
+				routineService.inquireRoutine(routineId, user)
 			), HttpStatus.OK);
 	}
 
 	@GetMapping("/routines")
-	public ResponseEntity<?> totalInquireRoutine(
-		@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken) {
+	public ResponseEntity<?> totalInquireRoutine(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken) {
+
 		String username = jwtTokenUtil.getUserNameByToken(jwtToken);
+		User user = userService.findUserByUsername(username);
 
 		return new ResponseEntity<>(
 			Response.of("success",
 				"루틴 전체조회가 완료되었습니다.",
-				routineService.totalInquireRoutine(username)
+				routineService.totalInquireRoutine(user)
 			), HttpStatus.OK);
 	}
 
@@ -138,7 +146,8 @@ public class RoutineController {
 		@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken) {
 
 		String username = jwtTokenUtil.getUserNameByToken(jwtToken);
-		routineService.cancelRoutine(request, username);
+		userService.findUserByUsername(username);
+		routineService.cancelRoutine(request);
 
 		return new ResponseEntity<>(
 			Response.of("success",

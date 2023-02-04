@@ -311,7 +311,7 @@ public class UserControllerTest {
 		//mock
 		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
-		when(routineService.deleteRoutineByUser(username)).thenThrow(new IllegalStateException());
+		when(userService.findUserByUsername(username)).thenThrow(new IllegalStateException());
 
 		//when & then
 		mockMvc.perform(delete("/withdraw")
@@ -335,9 +335,11 @@ public class UserControllerTest {
 		User mockUser = mock(User.class);
 
 		//mock
+		User mockedUser = mock(User.class);
 		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
-		when(routineService.deleteRoutineByUser(username)).thenReturn(mockUser);
+		when(userService.findUserByUsername(username)).thenReturn(mockedUser);
+		doNothing().when(routineService).deleteRoutineByUser(mockedUser);
 		when(userService.delete(mockUser)).thenReturn(ArgumentMatchers.any(UserDeleteResponse.class));
 
 		//when & then
