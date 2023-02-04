@@ -74,9 +74,8 @@ public class UserService {
 	}
 
 	@Transactional
-	public UserDeleteResponse delete(String username) {
-		User user = getUserByUsername(username);
-		user.withdraw();
+	public UserDeleteResponse delete(User user) {
+		userRepository.delete(user);
 		return UserDeleteResponse.from(user);
 	}
 

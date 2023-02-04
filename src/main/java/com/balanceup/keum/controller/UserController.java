@@ -19,6 +19,8 @@ import com.balanceup.keum.config.util.JwtTokenUtil;
 import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.controller.dto.response.Response;
+import com.balanceup.keum.controller.dto.response.user.UserDeleteResponse;
+import com.balanceup.keum.service.RoutineService;
 import com.balanceup.keum.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 
 	private final UserService userService;
+	private final RoutineService routineService;
 	private final PrincipalDetailService principalDetailService;
 	private final JwtTokenUtil jwtTokenUtil;
 
@@ -62,7 +65,7 @@ public class UserController {
 		String username = jwtTokenUtil.getUserNameByToken(servletRequest.getHeader(HttpHeaders.AUTHORIZATION));
 
 		return new ResponseEntity<>(
-			getSuccessResponse("회원탈퇴가 완료되었습니다.", userService.delete(username)),
+			getSuccessResponse("회원탈퇴가 완료되었습니다.", userService.delete(routineService.deleteRoutineByUser(username))),
 			HttpStatus.OK);
 	}
 

@@ -143,31 +143,17 @@ public class UserServiceTest {
 		assertDoesNotThrow(() -> userService.updateNickname(request, "username"));
 	}
 
-	@DisplayName("회원탈퇴 테스트 - 로그인한 사용자가 정확하지 않은 경우")
-	@Test
-	void given_NonExistentUser_when_DeleteUser_then_Throw() {
-		//given
-		String username = "username";
-
-		//when
-		when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-		//then
-		IllegalStateException e = assertThrows(IllegalStateException.class, () -> userService.delete(username));
-		assertEquals("사용자가 정확하지 않습니다.", e.getMessage());
-	}
-
 	@DisplayName("회원 탈퇴 테스트")
 	@Test
 	void given_UserInfo_when_DeleteUser_then_DoesNotThrow() {
 		//given
-		String username = "username";
+		User mockUser = mock(User.class);
 
 		//when
-		when(userRepository.findByUsername(username)).thenReturn(Optional.of(mock(User.class)));
+		doNothing().when(userRepository).delete(mockUser);
 
 		//then
-		assertDoesNotThrow(() -> userService.delete(username));
+		assertDoesNotThrow(() -> userService.delete(mockUser));
 	}
 
 	@DisplayName("Refresh 토큰 테스트 - 토큰 만료시")

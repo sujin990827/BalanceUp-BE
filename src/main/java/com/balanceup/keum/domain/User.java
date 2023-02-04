@@ -12,9 +12,6 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,8 +21,6 @@ import lombok.ToString;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "\"user\"")
-@SQLDelete(sql = "UPDATE \"user\" SET deleted_at = NOW() where id =?")
-@Where(clause = "deleted_at is NULL")
 @Entity
 public class User {
 
@@ -52,9 +47,6 @@ public class User {
 	@Column(name = "modified_at")
 	private Timestamp modifiedAt;
 
-	@Column(name = "deleted_at")
-	private Timestamp deletedAt;
-
 	public User updateUserNickname(String nickname) {
 		this.nickname = nickname;
 		return this;
@@ -70,10 +62,6 @@ public class User {
 		this.nickname = nickname;
 		this.provider = provider;
 		this.rp = 0;
-	}
-
-	public void withdraw() {
-		this.deletedAt = Timestamp.from(Instant.now());
 	}
 
 	public void earnRp(int rp) {

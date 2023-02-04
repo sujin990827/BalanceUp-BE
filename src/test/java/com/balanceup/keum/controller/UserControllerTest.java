@@ -32,6 +32,8 @@ import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.controller.dto.response.user.UserDeleteResponse;
 import com.balanceup.keum.controller.dto.response.user.UserResponse;
+import com.balanceup.keum.domain.User;
+import com.balanceup.keum.service.RoutineService;
 import com.balanceup.keum.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -47,6 +49,9 @@ public class UserControllerTest {
 
 	@MockBean
 	private UserService userService;
+
+	@MockBean
+	private RoutineService routineService;
 
 	@MockBean
 	private PrincipalDetailService principalDetailService;
@@ -306,7 +311,7 @@ public class UserControllerTest {
 		//mock
 		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
-		when(userService.delete(username)).thenThrow(new IllegalStateException());
+		when(routineService.deleteRoutineByUser(username)).thenThrow(new IllegalStateException());
 
 		//when & then
 		mockMvc.perform(delete("/withdraw")
@@ -327,11 +332,13 @@ public class UserControllerTest {
 		//given
 		String username = "username";
 		String token = "token.token.token";
+		User mockUser = mock(User.class);
 
 		//mock
 		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
-		when(userService.delete(anyString())).thenReturn(ArgumentMatchers.any(UserDeleteResponse.class));
+		when(routineService.deleteRoutineByUser(username)).thenReturn(mockUser);
+		when(userService.delete(mockUser)).thenReturn(ArgumentMatchers.any(UserDeleteResponse.class));
 
 		//when & then
 		mockMvc.perform(delete("/withdraw")

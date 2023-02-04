@@ -147,4 +147,11 @@ public class RoutineService {
 		}
 	}
 
+	@Transactional
+	public User deleteRoutineByUser(String username) {
+		User user = userService.findUserByUsername(username);
+		routineRepository.deleteAllByUser(user);
+		return user;
+	}
+
 }
