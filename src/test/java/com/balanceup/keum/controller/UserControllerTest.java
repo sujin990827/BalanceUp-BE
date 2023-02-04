@@ -1,7 +1,6 @@
 package com.balanceup.keum.controller;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -31,6 +30,7 @@ import com.balanceup.keum.controller.dto.TokenDto;
 import com.balanceup.keum.controller.dto.request.user.ReIssueRequest;
 import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.controller.dto.response.user.UserDeleteResponse;
+import com.balanceup.keum.controller.dto.response.user.UserInfoResponse;
 import com.balanceup.keum.controller.dto.response.user.UserResponse;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.service.RoutineService;
@@ -365,9 +365,12 @@ public class UserControllerTest {
 		String token = "token";
 
 		//mock
+		User mockedUser = mock(User.class);
+		when(userService.findUserByUsername(username)).thenReturn(mockedUser);
 		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
-		when(userService.getUserInfoByUsername(anyString())).thenReturn(any());
+		when(userService.findUserByUsername(username)).thenReturn(mockedUser);
+		when(userService.getUserInfoByUsername(mockedUser)).thenReturn(ArgumentMatchers.any(UserInfoResponse.class));
 
 		//when & then
 		mockMvc.perform(get("/user")
@@ -393,7 +396,7 @@ public class UserControllerTest {
 		//mock
 		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
-		when(userService.getUserInfoByUsername(anyString())).thenThrow(new IllegalStateException());
+		when(userService.findUserByUsername(username)).thenThrow(UsernameNotFoundException.class);
 
 		//when & then
 		mockMvc.perform(get("/user")

@@ -2,8 +2,6 @@ package com.balanceup.keum.service;
 
 import static java.util.Objects.*;
 
-import java.util.Optional;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -85,22 +83,8 @@ public class UserService {
 			.orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 user 입니다."));
 	}
 
-	@Transactional(readOnly = true)
-	public UserInfoResponse getUserInfoByUsername(String username) {
-		User user = getUserByUsername(username);
-
+	public UserInfoResponse getUserInfoByUsername(User user) {
 		return UserInfoResponse.of(user);
-	}
-
-	private User getUserByUsername(String username) {
-		return checkUserByUsername(userRepository.findByUsername(username));
-	}
-
-	private static User checkUserByUsername(Optional<User> optionalUser) {
-		if (optionalUser.isEmpty()) {
-			throw new IllegalStateException("사용자가 정확하지 않습니다.");
-		}
-		return optionalUser.get();
 	}
 
 	private static boolean isNormalRefreshToken(ReIssueRequest dto, String refreshTokenInRedis) {

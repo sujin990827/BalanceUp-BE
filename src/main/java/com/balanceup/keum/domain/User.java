@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -41,6 +42,9 @@ public class User {
 
 	private Integer rp;
 
+	@Embedded
+	private RoutineCompletionNumbers routineCompletionNumbers;
+
 	@Column(name = "create_at")
 	private Timestamp createAt;
 
@@ -62,10 +66,22 @@ public class User {
 		this.nickname = nickname;
 		this.provider = provider;
 		this.rp = 0;
+		this.routineCompletionNumbers = new RoutineCompletionNumbers();
 	}
 
 	public void earnRp(int rp) {
 		this.rp += rp;
+	}
+
+	public void decreaseRp(int rp) {
+		if (rp > this.rp) {
+			throw new IllegalStateException("rp가 음수가 됩니다. 잘못된 요청입니다.");
+		}
+		this.rp -= rp;
+	}
+
+	public void completeRoutine(RoutineCategory routineCategory) {
+		this.routineCompletionNumbers.increaseRoutine(routineCategory);
 	}
 
 	@PrePersist
@@ -78,10 +94,4 @@ public class User {
 		this.modifiedAt = Timestamp.from(Instant.now());
 	}
 
-	public void decreaseRp(int rp) {
-		if (rp > this.rp) {
-			throw new IllegalStateException("rp가 음수가 됩니다. 잘못된 요청입니다.");
-		}
-		this.rp -= rp;
-	}
 }

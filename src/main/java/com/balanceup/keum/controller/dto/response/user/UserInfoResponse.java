@@ -15,8 +15,19 @@ public class UserInfoResponse {
 
 	private String nickname;
 	private Integer rp;
+	private Integer exercise;
+	private Integer learning;
+	private Integer daily;
+	private Integer mindCare;
 
 	public static UserInfoResponse of(User user) {
-		return new UserInfoResponse(user.getNickname(), user.getRp());
+		return new UserInfoResponse(
+			user.getNickname(),
+			user.getRp(),
+			user.getRoutineCompletionNumbers().getExercise(),
+			user.getRoutineCompletionNumbers().getLearning(),
+			user.getRoutineCompletionNumbers().getDaily(),
+			user.getRoutineCompletionNumbers().getMindCare()
+		);
 	}
 }

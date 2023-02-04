@@ -211,31 +211,4 @@ public class UserServiceTest {
 		assertDoesNotThrow(() -> userService.reIssue(request, details));
 	}
 
-	@DisplayName("회원 정보 조회 테스트")
-	@Test
-	void given_Username_when_UserInquire_then_DoesNotThrow() {
-		//given
-		String username = "username";
-
-		//when
-		when(userRepository.findByUsername(username)).thenReturn(Optional.of(mock(User.class)));
-
-		//then
-		assertDoesNotThrow(() -> userService.getUserInfoByUsername(username));
-	}
-
-	@DisplayName("회원 정보 조회 테스트 - 회원이 존재하지 않을 때")
-	@Test
-	void given_NonexistentUsername_when_UserInquire_then_ThrowsException() {
-		//given
-		String username = "username";
-
-		//when
-		when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-		//then
-		assertThrows(IllegalStateException.class,
-			() -> userService.getUserInfoByUsername(username));
-	}
-
 }

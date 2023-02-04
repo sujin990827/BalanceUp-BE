@@ -82,6 +82,7 @@ public class RoutineService {
 
 		routine.isAllDone();
 		user.earnRp(20);
+		user.completeRoutine(routine.getRoutineCategory());
 	}
 
 	@Transactional(readOnly = true)
