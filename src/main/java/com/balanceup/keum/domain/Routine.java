@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -236,5 +237,10 @@ public class Routine {
 		}
 
 		user.decreaseRp(completedCount);
+	}
+
+	public boolean isExpiry() {
+		routineDays.sort(Comparator.comparing(RoutineDay::getDay));
+		return routineDays.get(routineDays.size() - 1).isExpiry();
 	}
 }

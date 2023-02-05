@@ -53,4 +53,8 @@ public class RoutineDay {
 	public void cancel() {
 		this.completed = false;
 	}
+
+	public boolean isExpiry() {
+		return day.before(new Date());
+	}
 }

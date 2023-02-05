@@ -38,7 +38,7 @@ public class RoutineService {
 		isMaximumRoutine(user);
 
 		Routine routine = routineRepository
-			.save(Routine.ofRoutineInfo(request, routineDayService.makeRoutineDays(), user));
+			.save(Routine.ofRoutineInfo(request, routineDayService.makeRoutineDays(request.getDays()), user));
 
 		return RoutineMakeResponse.from(user.getUsername(), routine);
 	}
@@ -143,4 +143,17 @@ public class RoutineService {
 		routineRepository.deleteAllByUser(user);
 	}
 
+	@Transactional
+	public int deleteExpiryRoutine(User user) {
+		List<Routine> routines = routineRepository.findAllByUser(user);
+		int deleteCount = 0;
+		for (Routine routine : routines) {
+			if (routine.isExpiry()) {
+				deleteCount++;
+				routineRepository.delete(routine);
+			}
+		}
+
+		return deleteCount;
+	}
 }

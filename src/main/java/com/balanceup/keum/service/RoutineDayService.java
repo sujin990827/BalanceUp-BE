@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.balanceup.keum.domain.Day;
 import com.balanceup.keum.domain.Routine;
 import com.balanceup.keum.domain.RoutineDay;
 import com.balanceup.keum.repository.RoutineDayRepository;
@@ -21,9 +22,9 @@ public class RoutineDayService {
 	private final RoutineDayRepository routineDayRepository;
 
 	@Transactional
-	public List<RoutineDay> makeRoutineDays() {
+	public List<RoutineDay> makeRoutineDays(String days) {
 		List<RoutineDay> routineDays = new ArrayList<>();
-		saveRoutineDay(routineDays);
+		saveRoutineDay(routineDays, days);
 		return routineDays;
 	}
 
@@ -43,13 +44,18 @@ public class RoutineDayService {
 		}
 	}
 
-	private void saveRoutineDay(List<RoutineDay> routineDays) {
+	private void saveRoutineDay(List<RoutineDay> routineDays, String days) {
 		Date today = new Date();
-
+		List<Day> dayList = Day.of(days);
 		for (int day = 0; day < 14; day++) {
 			RoutineDay routineDay = RoutineDay.makeRoutineDay(today, day);
-			routineDayRepository.save(routineDay);
-			routineDays.add(routineDay);
+			for (Day d : dayList) {
+				if (d.getDayOfTheWeek() == routineDay.getDay().getDay() + 1) {
+					routineDayRepository.save(routineDay);
+					routineDays.add(routineDay);
+					break;
+				}
+			}
 		}
 
 	}

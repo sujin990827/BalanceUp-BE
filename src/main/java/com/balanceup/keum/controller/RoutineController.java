@@ -156,4 +156,17 @@ public class RoutineController {
 			), HttpStatus.OK);
 	}
 
+	@DeleteMapping("/routines")
+	public ResponseEntity<?> deleteExpiryRoutines(@RequestHeader(name = HttpHeaders.AUTHORIZATION) String jwtToken) {
+		String username = jwtTokenUtil.getUserNameByToken(jwtToken);
+		User user = userService.findUserByUsername(username);
+		int deleteCount = routineService.deleteExpiryRoutine(user);
+
+		return new ResponseEntity<>(
+			Response.of("success",
+				"기한이 지난 루틴삭제가 완료되었습니다.",
+				String.format("삭제된 루틴 갯수는 %d개 입니다.", deleteCount)
+			), HttpStatus.OK);
+	}
+
 }

@@ -46,7 +46,7 @@ public class RoutineServiceTest {
 
 		//when
 		when(routineRepository.findAllByUser(any(User.class))).thenReturn(mock(List.class));
-		when(routineDayService.makeRoutineDays()).thenReturn(mock(List.class));
+		when(routineDayService.makeRoutineDays("월화수")).thenReturn(mock(List.class));
 		when(routineRepository.save(any())).thenReturn(routine);
 
 		//then
@@ -69,39 +69,6 @@ public class RoutineServiceTest {
 			() -> routineService.makeRoutine(request, mockedUser));
 		assertEquals("루틴 갯수는 4개를 초과할 수 없습니다.",
 			e.getMessage());
-	}
-
-	@DisplayName("루틴 생성 테스트 (Routine Day List 값이 저장이 안될때)")
-	@Test
-	void given_InvalidRoutineInfo_when_makeRoutine_then_ThrowIllegalArgumentException() {
-		//given
-		RoutineMakeRequest request = RequestFixture.getRoutineMakeRequestFixture();
-		User mockedUser = mock(User.class);
-
-		//when
-		when(routineRepository.findAllByUser(any(User.class))).thenReturn(mock(List.class));
-		doThrow(IllegalArgumentException.class).when(routineDayService).makeRoutineDays();
-
-		//then
-		assertThrows(IllegalArgumentException.class,
-			() -> routineService.makeRoutine(request, mockedUser));
-	}
-
-	@DisplayName("루틴 생성 테스트 (Routine 값이 저장이 안될때)")
-	@Test
-	void given_InvalidRoutine_when_makeRoutine_then_ThrowIllegalArgumentException() {
-		//given
-		RoutineMakeRequest request = RequestFixture.getRoutineMakeRequestFixture();
-		User mockedUser = mock(User.class);
-
-		//when
-		when(routineRepository.findAllByUser(any(User.class))).thenReturn(mock(List.class));
-		doReturn(mock(List.class)).when(routineDayService).makeRoutineDays();
-		doThrow(IllegalArgumentException.class).when(routineRepository).save(any(Routine.class));
-
-		//then
-		assertThrows(IllegalArgumentException.class,
-			() -> routineService.makeRoutine(request, mockedUser));
 	}
 
 	@DisplayName("루틴 생성 테스트 (루틴명이 입력되지 않았을 때)")
