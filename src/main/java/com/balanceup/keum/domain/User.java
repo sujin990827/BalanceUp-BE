@@ -29,17 +29,19 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private Long id;
 
-	@Column(length = 50, nullable = false, unique = true)
+	@Column(length = 50, nullable = false, unique = true, updatable = false)
 	private String username;
 
-	@Column(length = 100, nullable = false)
+	@Column(length = 100, nullable = false, updatable = false)
 	private String password;
 
 	@Column(length = 20, unique = true)
 	private String nickname;
 
+	@Column(columnDefinition = "소셜서비스 종류")
 	private String provider;
 
+	@Column(columnDefinition = "경험치")
 	private Integer rp;
 
 	@Embedded

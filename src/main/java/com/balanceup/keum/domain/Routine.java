@@ -64,13 +64,14 @@ public class Routine {
 
 	private Boolean completed;
 
-	@Column(name = "alarm_time")
+	@Column(length = 30, name = "alarm_time", columnDefinition = "알람시간 \"18:30\"")
 	private String alarmTime;
 
 	@Enumerated(EnumType.STRING)
+	@Column(length = 50, nullable = false, name = "routine_category")
 	private RoutineCategory routineCategory;
 
-	@Column
+	@Column(length = 30, nullable = false, columnDefinition = "루틴진행날짜 \"월화수목\"")
 	private String days;
 
 	@Column(name = "create_at")
