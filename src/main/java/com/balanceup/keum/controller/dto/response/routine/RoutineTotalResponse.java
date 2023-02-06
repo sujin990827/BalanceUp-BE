@@ -1,9 +1,9 @@
 package com.balanceup.keum.controller.dto.response.routine;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.balanceup.keum.domain.Routine;
-import com.balanceup.keum.domain.RoutineDay;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,9 +22,14 @@ public class RoutineTotalResponse {
 	private String days;
 	private String alarmTime;
 	private boolean completed;
-	private List<RoutineDay> routineDays;
+	private List<RoutineDaysResponse> routineDays;
 
 	public static RoutineTotalResponse of(Routine routine) {
+
+		List<RoutineDaysResponse> routineDays = routine.getRoutineDays().stream()
+			.map(RoutineDaysResponse::of)
+			.collect(Collectors.toList());
+
 		return RoutineTotalResponse.builder()
 			.routineId(routine.getId())
 			.routineTitle(routine.getRoutineTitle())
@@ -32,7 +37,7 @@ public class RoutineTotalResponse {
 			.days(routine.getDays())
 			.alarmTime(routine.getAlarmTime())
 			.completed(routine.getCompleted())
-			.routineDays(routine.getRoutineDaysWithFiltering())
+			.routineDays(routineDays)
 			.build();
 	}
 

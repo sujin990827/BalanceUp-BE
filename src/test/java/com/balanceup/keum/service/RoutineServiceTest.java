@@ -67,8 +67,7 @@ public class RoutineServiceTest {
 		//then
 		IllegalStateException e = assertThrows(IllegalStateException.class,
 			() -> routineService.makeRoutine(request, mockedUser));
-		assertEquals("루틴 갯수는 4개를 초과할 수 없습니다.",
-			e.getMessage());
+		assertEquals("루틴 갯수는 4개를 초과할 수 없습니다.", e.getMessage());
 	}
 
 	@DisplayName("루틴 생성 테스트 (루틴명이 입력되지 않았을 때)")
@@ -191,8 +190,7 @@ public class RoutineServiceTest {
 		when(routineRepository.findById(eq(routineId))).thenReturn(Optional.empty());
 
 		//then
-		assertThrows(IllegalArgumentException.class,
-			() -> routineService.inquireRoutine(routineId, mockedUser));
+		assertThrows(IllegalArgumentException.class, () -> routineService.inquireRoutine(routineId, mockedUser));
 	}
 
 	@DisplayName("루틴 삭제 테스트")
@@ -236,10 +234,9 @@ public class RoutineServiceTest {
 		//when
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mock(Routine.class)));
 		doNothing().when(routineDayService).progressDailyRoutine(any(Routine.class));
-		doNothing().when(mockedUser).earnRp(1);
 
 		//then
-		assertDoesNotThrow(() -> routineService.progressRoutine(request, mockedUser));
+		assertDoesNotThrow(() -> routineService.progressRoutine(request));
 	}
 
 	@DisplayName("루틴 진행 테스트 - 루틴 전체 완료")
@@ -253,10 +250,9 @@ public class RoutineServiceTest {
 		Routine mockRoutine = mock(Routine.class);
 		when(routineRepository.findById(eq(request.getRoutineId()))).thenReturn(Optional.of(mockRoutine));
 		doNothing().when(mockRoutine).isAllDone();
-		doNothing().when(mockedUser).earnRp(20);
 
 		//then
-		assertDoesNotThrow(() -> routineService.allDoneRoutine(request, mockedUser));
+		assertDoesNotThrow(() -> routineService.allDoneRoutine(request));
 	}
 
 	@DisplayName("루틴 진행 테스트 - 루틴 실패 ")
@@ -273,8 +269,7 @@ public class RoutineServiceTest {
 		doThrow(IllegalStateException.class).when(mockRoutine).isAllDone();
 
 		//then
-		assertThrows(IllegalStateException.class,
-			() -> routineService.allDoneRoutine(request, mockedUser));
+		assertThrows(IllegalStateException.class, () -> routineService.allDoneRoutine(request));
 	}
 
 	@DisplayName("루틴 전체 조회 테스트")
@@ -317,8 +312,7 @@ public class RoutineServiceTest {
 		doThrow(new IllegalStateException()).when(mockRoutine).cancel(request.getDay());
 
 		//then
-		assertThrows(IllegalStateException.class,
-			() -> routineService.cancelRoutine(request));
+		assertThrows(IllegalStateException.class, () -> routineService.cancelRoutine(request));
 	}
 
 }

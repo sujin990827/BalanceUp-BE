@@ -69,20 +69,17 @@ public class RoutineService {
 	}
 
 	@Transactional
-	public void progressRoutine(RoutineProgressRequest request, User user) {
+	public void progressRoutine(RoutineProgressRequest request) {
 		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
-
 		routineDayService.progressDailyRoutine(routine);
-		user.earnRp(1);
 	}
 
 	@Transactional
-	public void allDoneRoutine(RoutineAllDoneRequest request, User user) {
+	public Routine allDoneRoutine(RoutineAllDoneRequest request) {
 		Routine routine = getRoutineByOptional(routineRepository.findById(request.getRoutineId()));
-
 		routine.isAllDone();
-		user.earnRp(20);
-		user.completeRoutine(routine.getRoutineCategory());
+
+		return routine;
 	}
 
 	@Transactional(readOnly = true)

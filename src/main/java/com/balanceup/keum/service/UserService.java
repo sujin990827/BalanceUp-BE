@@ -14,6 +14,7 @@ import com.balanceup.keum.controller.dto.request.user.UserNicknameUpdateRequest;
 import com.balanceup.keum.controller.dto.response.user.UserDeleteResponse;
 import com.balanceup.keum.controller.dto.response.user.UserInfoResponse;
 import com.balanceup.keum.controller.dto.response.user.UserResponse;
+import com.balanceup.keum.domain.Routine;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.repository.RedisRepository;
 import com.balanceup.keum.repository.UserRepository;
@@ -85,6 +86,19 @@ public class UserService {
 
 	public UserInfoResponse getUserInfoByUsername(User user) {
 		return UserInfoResponse.of(user);
+	}
+
+	@Transactional
+	public User earnRp(User user, int rp) {
+		User persistenceUser = userRepository.save(user);
+		persistenceUser.earnRp(rp);
+		return user;
+	}
+
+	@Transactional
+	public void allDoneRoutine(User user, Routine routine) {
+		User persistenceUser = earnRp(user, 20);
+		persistenceUser.completeRoutine(routine.getRoutineCategory());
 	}
 
 	private static boolean isNormalRefreshToken(ReIssueRequest dto, String refreshTokenInRedis) {

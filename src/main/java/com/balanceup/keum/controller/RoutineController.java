@@ -20,6 +20,7 @@ import com.balanceup.keum.controller.dto.request.routine.RoutineMakeRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
 import com.balanceup.keum.controller.dto.response.Response;
+import com.balanceup.keum.domain.Routine;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.service.RoutineService;
 import com.balanceup.keum.service.UserService;
@@ -71,7 +72,8 @@ public class RoutineController {
 
 		String username = jwtTokenUtil.getUserNameByToken(jwtToken);
 		User user = userService.findUserByUsername(username);
-		routineService.progressRoutine(request, user);
+		routineService.progressRoutine(request);
+		userService.earnRp(user, 1);
 
 		return new ResponseEntity<>(
 			Response.of("success",
@@ -87,8 +89,9 @@ public class RoutineController {
 
 		String username = jwtTokenUtil.getUserNameByToken(jwtToken);
 		User user = userService.findUserByUsername(username);
+		Routine routine = routineService.allDoneRoutine(request);
+		userService.allDoneRoutine(user, routine);
 
-		routineService.allDoneRoutine(request, user);
 		return new ResponseEntity<>(
 			Response.of("success",
 				"루틴 전체 진행이 완료되었습니다. 20rp 상승",
@@ -105,6 +108,7 @@ public class RoutineController {
 		userService.findUserByUsername(username);
 
 		routineService.deleteRoutine(request);
+
 		return new ResponseEntity<>(
 			Response.of("success",
 				"루틴 삭제가 완료되었습니다.",
@@ -164,7 +168,7 @@ public class RoutineController {
 
 		return new ResponseEntity<>(
 			Response.of("success",
-				"기한이 지난 루틴삭제가 완료되었습니다.",
+				"기한이 만료된 루틴 삭제가 완료되었습니다.",
 				String.format("삭제된 루틴 갯수는 %d개 입니다.", deleteCount)
 			), HttpStatus.OK);
 	}

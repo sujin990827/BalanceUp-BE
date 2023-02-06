@@ -32,6 +32,7 @@ import com.balanceup.keum.controller.dto.request.routine.RoutineProgressRequest;
 import com.balanceup.keum.controller.dto.request.routine.RoutineUpdateRequest;
 import com.balanceup.keum.controller.dto.response.routine.RoutineMakeResponse;
 import com.balanceup.keum.controller.dto.response.routine.RoutineResponse;
+import com.balanceup.keum.domain.Routine;
 import com.balanceup.keum.domain.User;
 import com.balanceup.keum.fixture.RequestFixture;
 import com.balanceup.keum.service.RoutineService;
@@ -232,7 +233,7 @@ public class RoutineControllerTest {
 		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
 		when(userService.findUserByUsername(username)).thenReturn(mockedUser);
-		doNothing().when(routineService).progressRoutine(request, mockedUser);
+		doNothing().when(routineService).progressRoutine(request);
 
 		//when & then
 		mockMvc.perform(put("/progress/routine")
@@ -264,7 +265,7 @@ public class RoutineControllerTest {
 		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
 		when(userService.findUserByUsername(username)).thenReturn(mockedUser);
-		doThrow(new IllegalStateException()).when(routineService).progressRoutine(request, mockedUser);
+		doThrow(new IllegalStateException()).when(routineService).progressRoutine(request);
 
 		//when & then
 		mockMvc.perform(put("/progress/routine")
@@ -295,7 +296,7 @@ public class RoutineControllerTest {
 		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
 		when(userService.findUserByUsername(username)).thenReturn(mockedUser);
-		doNothing().when(routineService).allDoneRoutine(request, mockedUser);
+		when(routineService.allDoneRoutine(request)).thenReturn(mock(Routine.class));
 
 		//when & then
 		mockMvc.perform(put("/progress/routines")
@@ -327,7 +328,7 @@ public class RoutineControllerTest {
 		when(servletRequest.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(token);
 		when(jwtTokenUtil.getUserNameByToken(token)).thenReturn(username);
 		when(userService.findUserByUsername(username)).thenReturn(mockedUser);
-		doThrow(new IllegalStateException()).when(routineService).allDoneRoutine(request, mockedUser);
+		doThrow(new IllegalStateException()).when(routineService).allDoneRoutine(request);
 
 		//when & then
 		mockMvc.perform(put("/progress/routines")
