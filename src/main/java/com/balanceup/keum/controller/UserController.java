@@ -83,9 +83,18 @@ public class UserController {
 			HttpStatus.OK);
 	}
 
+	@GetMapping("/")
+	public ResponseEntity<?> root() {
+
+		return new ResponseEntity<>(
+			getSuccessResponse("상태검사완료", null),
+			HttpStatus.OK);
+	}
+
 	private static Response<Object> getSuccessResponse(String message, Object body) {
 		return Response.of("success", message, body);
 	}
+
 
 }
 
