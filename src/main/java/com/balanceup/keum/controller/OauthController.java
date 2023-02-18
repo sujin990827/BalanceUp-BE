@@ -52,7 +52,7 @@ public class OauthController {
 				new TokenDto(kakaoService.login(request.getUsername()))), HttpStatus.OK);
 	}
 
-	@PostMapping("/login/google")
+	@GetMapping("/login/google")
 	public ResponseEntity<?> getGoogleUserInfo(@RequestParam String accessToken) {
 		return new ResponseEntity<>(
 			Response.of("success", "유저 정보 받아오기 성공",
